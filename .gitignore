@@ -1,0 +1,16 @@
+# Node
+node_modules/
+dist/
+
+# PHP / Composer
+vendor/
+.env
+
+# Docker
+docker/db_data/
+docker/.env
+
+# IDE / OS
+.vscode/
+.DS_Store
+*.log
