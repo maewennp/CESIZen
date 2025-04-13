@@ -1,4 +1,3 @@
-
 -- Suppression des tables si elles existent déjà (dans le bon ordre pour les FK)
 DROP TABLE IF EXISTS stress_response;
 DROP TABLE IF EXISTS connexion_log;
@@ -21,13 +20,13 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    created_at DATETIME,
-    updated_at DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_admin BOOLEAN DEFAULT FALSE,
     terms_accepted BOOLEAN DEFAULT FALSE,
-    accepted_terms_at DATETIME,
+    accepted_terms_at TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
-    deleted_at DATETIME
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE breath_exercise (
@@ -41,7 +40,7 @@ CREATE TABLE breath_exercise (
 
 CREATE TABLE breathing_session (
     id_session INT AUTO_INCREMENT PRIMARY KEY,
-    created_at DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_exercise INT,
     id_user INT,
     FOREIGN KEY(id_exercise) REFERENCES breath_exercise(id_exercise) ON DELETE SET NULL,
@@ -60,8 +59,8 @@ CREATE TABLE relax_activity (
 
 CREATE TABLE favorite (
     id_favorite INT AUTO_INCREMENT PRIMARY KEY,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     still_fav BOOLEAN DEFAULT TRUE,
     id_activity INT NOT NULL,
     id_user INT NOT NULL,
@@ -83,7 +82,7 @@ CREATE TABLE emotion (
 
 CREATE TABLE emotion_tracker (
     id_emotion_tracker INT AUTO_INCREMENT PRIMARY KEY,
-    created_at DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     intensity INT,
     comment TEXT,
     id_emotion INT NOT NULL,
@@ -108,7 +107,7 @@ CREATE TABLE holmes_rahe_scale_result (
 
 CREATE TABLE stress_diagnostic (
     id_diagnostic INT AUTO_INCREMENT PRIMARY KEY,
-    created_at DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_result INT NOT NULL,
     id_user INT NOT NULL,
     FOREIGN KEY(id_result) REFERENCES holmes_rahe_scale_result(id_result) ON DELETE CASCADE,
@@ -117,7 +116,7 @@ CREATE TABLE stress_diagnostic (
 
 CREATE TABLE connexion_log (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
-    date_log DATETIME,
+    date_log TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ip VARCHAR(255),
     id_user INT NOT NULL,
     FOREIGN KEY(id_user) REFERENCES users(id_user) ON DELETE CASCADE
@@ -129,7 +128,7 @@ CREATE TABLE content_page (
     body TEXT,
     media_content TEXT,
     visible BOOLEAN DEFAULT TRUE,
-    created_at DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_user INT,
     FOREIGN KEY(id_user) REFERENCES users(id_user) ON DELETE SET NULL
 );

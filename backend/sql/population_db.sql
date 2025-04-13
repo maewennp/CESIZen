@@ -4,9 +4,9 @@
 -- 1. USERS
 INSERT INTO users (username, email, password, created_at, updated_at, is_admin, terms_accepted, accepted_terms_at)
 VALUES
-('admin', 'admin@cesizen.fr', 'hashed_admin_pwd', NOW(), NOW(), TRUE, TRUE, NOW()),
-('Happie', 'happie@cesizen.fr', 'hashed_pwd_1', NOW(), NOW(), FALSE, TRUE, NOW()),
-('Nuggets', 'nuggets@cesizen.fr', 'hashed_pwd_2', NOW(), NOW(), FALSE, TRUE, NOW());
+('admin', 'admin@cesizen.fr', '$2a$12$DvcailYfGwlu48otR4PQP.9ECmuYtmdH6Vge6tqoJP76/nBzKUL2y', NOW(), NOW(), TRUE, TRUE, NOW()),
+('Happie', 'happie@cesizen.fr', '$2a$12$DvcailYfGwlu48otR4PQP.9ECmuYtmdH6Vge6tqoJP76/nBzKUL2y', NOW(), NOW(), FALSE, TRUE, NOW()),
+('Nuggets', 'nuggets@cesizen.fr', '$2a$12$DvcailYfGwlu48otR4PQP.9ECmuYtmdH6Vge6tqoJP76/nBzKUL2y', NOW(), NOW(), FALSE, TRUE, NOW());
 
 -- 2. BREATH EXERCISE
 INSERT INTO breath_exercise (exercise_label, breath_in, breath_out, holding_breath, media_breath_exercise)
@@ -88,8 +88,8 @@ VALUES
 -- 10. STRESS RESPONSE
 INSERT INTO stress_response (id_event, id_diagnostic)
 VALUES
-(2, 1), (3, 1), (8, 1), -- marie
-(1, 2), (4, 2), (6, 2); -- lucas
+(2, 1), (3, 1), (8, 1), -- happie
+(1, 2), (4, 2), (6, 2); -- nuggets
 
 -- 11. RELAX ACTIVITY
 INSERT INTO relax_activity (activity_label, content, category, is_active, type, media_activity)
