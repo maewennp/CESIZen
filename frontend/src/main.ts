@@ -31,6 +31,7 @@ const vuetify = createVuetify({
       light: {
         colors: {
           primary: '#B8F1D8',       // Vert pastel clair
+          darkprimary: '#35b995',   // vert paster un peu plus sombre
           secondary: '#FFE9C4',     // Jaune doux
           accent: '#000000',        // Noir pour les textes
           info: '#D0F6FF',          // Bleu ciel pâle (états d'info)

@@ -1,4 +1,4 @@
-@import './base.css';
+/* @import './base.css';
 
 #app {
   max-width: 1280px;
@@ -33,3 +33,14 @@ a,
     padding: 0 2rem;
   }
 }
+
+.v-application__wrap {
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.background-image {
+  position: fixed !important;
+  z-index: 0 !important;
+} */
