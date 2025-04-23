@@ -57,7 +57,7 @@
         </div>
       </v-container>
 
-      <v-container class="py-1 px-4">
+      <v-container class="py-1 px-4 mb-12">
         <!-- MODULES -->
         <h2 class="text-h4 text-center mb-6">Modules proposés</h2>
         <v-row justify="center" align="center" class="modules-grid" dense>
