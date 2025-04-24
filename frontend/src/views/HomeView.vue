@@ -100,7 +100,6 @@ import { useDisplay } from 'vuetify'
 import ModuleComingSoon from '@/components/ModuleComingSoon.vue'
 import { useModuleComingSoon } from '@/stores/useModuleComingSoon'
 
-
 const { mdAndUp } = useDisplay()
 
 const router = useRouter()
@@ -144,16 +143,13 @@ const goToModule = (route: string) => {
 }
 
 const modules = [
-  { label: 'Activités de relaxation', route: '/relaxation', icon: 'mdi-spa', available: true },
+  { label: 'Activités de relaxation', route: '/relax', icon: 'mdi-spa', available: true },
   { label: 'Exercice de respiration', route: '/breathing', icon: 'mdi-weather-windy', available: true },
   { label: 'Diagnostic de stress', route: '/diagnostic', icon: 'mdi-heart-pulse', available: false },
   { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline', available: false },
 ]
 
 // ================== MODALE COMING SOON ===========================
-
-const showComingSoon = ref(false)
-const selectedModuleName = ref('')
 
 const handleModuleClick = (module: any) => {
   if (module.available) {

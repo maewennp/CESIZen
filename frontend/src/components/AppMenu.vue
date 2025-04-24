@@ -146,7 +146,7 @@ const goTo = (route: string) => {
 }
 
 const modules = [
-  { label: 'Activité de relaxation', route: '/relaxation', icon: 'mdi-spa', available: true },
+  { label: 'Activité de relaxation', route: '/relax', icon: 'mdi-spa', available: true },
   { label: 'Exercice de respiration', route: '/breathing', icon: 'mdi-weather-windy', available: true },
   { label: 'Diagnostic de stress', route: '/diagnostic', icon: 'mdi-heart-pulse', available: false },
   { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline', available: false },

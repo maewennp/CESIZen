@@ -19,6 +19,17 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
     },
+    {
+      path: '/relax',
+      name: 'relax',
+      component: () => import('../views/ActivityRelaxView.vue'),
+    },
+    {
+      path: '/relax/:id',
+      name: 'relax-detail',
+      component: () => import('../views/RelaxDetailView.vue'),
+    }
+    
   ],
 })
 
