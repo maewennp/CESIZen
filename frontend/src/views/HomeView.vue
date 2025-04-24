@@ -1,7 +1,8 @@
 <template>
   <v-app>
     <v-main class="home-background">
-      <HeaderPublic @login="goToLogin" />
+      <HeaderPublic v-if="!mdAndUp" @login="goToLogin" />
+      <DesktopMenu v-if="mdAndUp" />
 
       <!-- CONTENU PRINCIPAL -->
       <v-container class="py-10 px-4">
@@ -11,7 +12,7 @@
         <v-carousel
           v-model="currentSlide"  
           cycle
-          height="500"
+          height="470"
           hide-delimiters
           show-arrows="hover"
           interval="8000"
@@ -30,7 +31,7 @@
                       :src="info.media_content"
                       alt="Image"
                       class="info-img"
-                      cover
+                      default
                     />
                   </div>
 
@@ -91,6 +92,10 @@
 import HeaderPublic from '@/components/HeaderPublic.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDisplay } from 'vuetify'
+import DesktopMenu from '@/components/DesktopMenu.vue'
+
+const { mdAndUp } = useDisplay()
 
 const router = useRouter()
 const currentSlide = ref(0)
@@ -176,7 +181,7 @@ const modules = [
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 10px;
 }
 .image-container {
   width: 100%;
@@ -184,7 +189,6 @@ const modules = [
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  border-radius: 12px;
 }
 
 .info-img {
@@ -202,7 +206,7 @@ const modules = [
 
 .text-limited {
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Nombre de lignes avant troncature */
+  -webkit-line-clamp: 2; /* Nombre de lignes avant troncature */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -233,7 +237,7 @@ const modules = [
   padding: 16px;
   transition: transform 0.3s ease;
   cursor: pointer;
-  background-color: #FFE9C4;
+  background-color: #fff6f2;
 }
 
 .module-card:hover {

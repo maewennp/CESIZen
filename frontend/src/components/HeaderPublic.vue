@@ -24,21 +24,23 @@
       <v-btn icon @click="$emit('login')">
         <v-icon>mdi-account</v-icon>
       </v-btn>
-      <v-btn icon>
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+      <!-- Affiché uniquement en mobile/tablette -->
+      <MobileMenu v-if="isMobile" />
     </div>
   </v-app-bar>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import MobileMenu from '@/components/MobileMenu.vue'
 
 const isVisible = ref(true)
 const isOpaque = ref(false)
 let lastScroll = window.scrollY
 
-const isMobile = computed(() => window.innerWidth < 960)
+import { useDisplay } from 'vuetify'
+const { mdAndDown } = useDisplay()
+const isMobile = computed(() => mdAndDown.value)
 
 const handleScroll = () => {
   if (isMobile.value) {
@@ -76,7 +78,7 @@ onUnmounted(() => {
 /* Desktop - Header toujours visible */
 @media (min-width: 960px) {
   .header-opaque {
-    background: rgba(255,233,196,0.98) !important;
+    background: rgba(255, 246, 242,0.98) !important;
     box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -91,7 +93,7 @@ onUnmounted(() => {
 /* Mobile - Comportement au scroll */
 @media (max-width: 959px) {
   .header-opaque {
-    background: rgba(255,233,196,0.98) !important;
+    background: rgba(255, 246, 242,0.98) !important;
     box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -102,19 +104,6 @@ onUnmounted(() => {
     opacity: 0;
   }
 }
-
-/*.header-opaque {
-  background: rgba(255,233,196,0.98) !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-}
-
-.header-hidden {
-  transform: translateY(-120%);
-  opacity: 0;
-  pointer-events: none;
-} */
 
 .logo-avatar {
   width: 100px !important;
