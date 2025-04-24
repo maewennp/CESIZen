@@ -20,6 +20,16 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
     },
     {
+      path: '/informations',
+      name: 'information',
+      component: () => import('../views/InformationsView.vue'),
+    },
+    {
+      path: '/info/:id',
+      name: 'info-detail',
+      component: () => import('../views/InfoDetailView.vue'),
+    },
+    {
       path: '/relax',
       name: 'relax',
       component: () => import('../views/ActivityRelaxView.vue'),
