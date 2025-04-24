@@ -1,8 +1,6 @@
 <template>
   <v-app>
     <v-main class="home-background">
-      <HeaderPublic v-if="!mdAndUp" @login="goToLogin" />
-      <DesktopMenu v-if="mdAndUp" />
 
       <!-- CONTENU PRINCIPAL -->
       <v-container class="py-10 px-4">
@@ -73,7 +71,8 @@
             <v-card
               class="module-card d-flex align-center justify-center text-center"
               elevation="6"
-              @click="goToModule(module.route)"
+              
+              @click="handleModuleClick(module)"
               ripple
             >
             <div class="d-flex flex-column align-center justify-center">
@@ -85,24 +84,29 @@
         </v-row>
     </v-container>
     </v-main>
+
+    <ModuleComingSoon
+      :open="isOpen"
+      :moduleName="moduleName"
+      @close="closeModal"
+    />
   </v-app>
 </template>
 
 <script setup lang="ts">
-import HeaderPublic from '@/components/HeaderPublic.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
-import DesktopMenu from '@/components/DesktopMenu.vue'
+import ModuleComingSoon from '@/components/ModuleComingSoon.vue'
+import { useModuleComingSoon } from '@/stores/useModuleComingSoon'
+
 
 const { mdAndUp } = useDisplay()
 
 const router = useRouter()
 const currentSlide = ref(0)
 
-const goToLogin = () => {
-  router.push('/login')
-}
+const { isOpen, moduleName, openModal, closeModal } = useModuleComingSoon()
 
 // ===================== INFOS - CARROUSEL =====================================
 
@@ -140,11 +144,25 @@ const goToModule = (route: string) => {
 }
 
 const modules = [
-  { label: 'Activités de relaxation', route: '/relaxation', icon: 'mdi-spa' },
-  { label: 'Exercice de respiration', route: '/breathing', icon: 'mdi-weather-windy' },
-  { label: 'Diagnostic de stress', route: '/diagnostic', icon: 'mdi-heart-pulse' },
-  { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline' },
+  { label: 'Activités de relaxation', route: '/relaxation', icon: 'mdi-spa', available: true },
+  { label: 'Exercice de respiration', route: '/breathing', icon: 'mdi-weather-windy', available: true },
+  { label: 'Diagnostic de stress', route: '/diagnostic', icon: 'mdi-heart-pulse', available: false },
+  { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline', available: false },
 ]
+
+// ================== MODALE COMING SOON ===========================
+
+const showComingSoon = ref(false)
+const selectedModuleName = ref('')
+
+const handleModuleClick = (module: any) => {
+  if (module.available) {
+    goToModule(module.route)
+  } else {
+    openModal(module.label)
+  }
+}
+
 </script>
 
 <style scoped>
