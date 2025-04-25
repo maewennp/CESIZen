@@ -13,7 +13,7 @@
       <!-- Logo + Nom -->
       <div class="d-flex align-center">
         <v-avatar size="100" class="logo-avatar mr-3">
-          <v-img src="/logo.png" alt="Logo CESIZen" cover />
+          <v-img src="/logo.png" alt="Logo CESIZen" cover @click="goTo('/')" />
         </v-avatar>
         <span class="logo-title">CESIZen</span>
       </div>
@@ -59,7 +59,7 @@
     >
       <div class="d-flex flex-column align-center py-4">
         <v-avatar size="100" class="logo-avatar mb-2">
-          <v-img src="/logo.png" alt="Logo CESIZen" cover />
+          <v-img src="/logo.png" alt="Logo CESIZen" cover @click="goTo('/')" />
         </v-avatar>
         <span class="logo-title">CESIZen</span>
       </div>
@@ -75,7 +75,7 @@
         </v-list-item>
         <v-list-item 
           class="d-flex align-center gap-2" 
-          @click="$emit('/informations')"
+          @click="goTo('/informations')"
         >
           <v-icon color="darkprimary" class="mr-2 my-4">mdi-information</v-icon>
           <span>Informations</span>
