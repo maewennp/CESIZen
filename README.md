@@ -76,13 +76,9 @@ DB_PASS=your_secure_password
 
 **5. Lancer le serveur PHP**
 ```bash
-php -S localhost:8000 -t src
+cd backend
+php -S localhost:8000 -t .
 ```
-Ouvrir dans votre navigateur : 
-```bash
-http://localhost:8000
-```
-✔️ Vous devriez voir : ✅ Connexion à la base de données réussie !
 
 ---
 
