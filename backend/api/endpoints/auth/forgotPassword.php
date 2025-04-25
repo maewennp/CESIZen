@@ -3,6 +3,7 @@ require_once '../../../database.php';
 require_once '../../../api/models/User.php';
 require_once '../../../api/cors.php';
 require_once '../../../vendor/autoload.php';
+require_once '../../../api/utils/sendEmail.php';
 
 use Firebase\JWT\JWT;
 
@@ -25,8 +26,9 @@ try {
     // Vérifie si l'email existe
     $user = $userModel->getUserByEmail($email);
     if (!$user) {
-        http_response_code(404);
-        echo json_encode(["error" => "Email non trouvé."]);
+        // Tips sécu : on renvoie un 200 pour ne pas révéler les emails existants
+        http_response_code(200);
+        echo json_encode(["message" => "Si l'email existe, un lien vous a été envoyé."]);
         exit();
     }
 
@@ -40,16 +42,19 @@ try {
 
     $resetToken = JWT::encode($payload, $secret, 'HS256');
 
-    
-    // Pour l'instant on le retourne le token directement pour test
-    http_response_code(200);
-    echo json_encode([
-        "message" => "Token de réinitialisation généré avec succès.",
-        "reset_token" => $resetToken
-    ]);
+    //envoi l'email
+    $emailSent = sendResetEmail($email, $resetToken);
 
+    if (!$emailSent) {
+      http_response_code(500);
+      echo json_encode(["error" => "Erreur lors de l'envoi de l'email."]);
+      exit();
+    }
+
+    http_response_code(200);
+    echo json_encode(["message" => "Si l'email existe, un lien vous a été envoyé."]);
 } catch (Exception $e) {
-    error_log("Erreur dans forgotPassword.php : " . $e->getMessage());
+    error_log("Erreur forgotPassword.php : " . $e->getMessage());
     http_response_code(500);
     echo json_encode(["error" => "Erreur serveur."]);
 }

@@ -1,7 +1,7 @@
 <?php
+require_once '../../../api/cors.php';
 require_once '../../../database.php';
 require_once '../../../api/controllers/AuthControllers.php';
-require_once '../../../api/cors.php';
 
 try {
     $db = Database::getConnection();

@@ -75,12 +75,32 @@
           </v-form>
         </v-card>
       </v-container>
+      <v-alert
+        v-if="successMessage"
+        type="success"
+        variant="tonal"
+        class="mt-4"
+      >
+        {{ successMessage }}
+      </v-alert>
+      <v-alert
+        v-if="errorMessage"
+        type="error"
+        variant="tonal"
+        class="mt-4"
+      >
+        {{ errorMessage }}
+      </v-alert>
     </v-main>
   </v-app>
 </template>
 
 <script setup lang="ts">
+import { authService } from '@/api/services/authService'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const form = ref({
   username: '',
@@ -88,6 +108,10 @@ const form = ref({
   password: '',
   terms: false,
 })
+
+const errorMessage = ref('')
+const loading = ref(false)
+const successMessage = ref('')
 
 const rules = {
   required: (value: string) => !!value || 'Champ requis',
@@ -98,10 +122,25 @@ const rules = {
   terms: (value: boolean) => value || 'Vous devez accepter les conditions',
 }
 
-function submitForm() {
-  console.log('Formulaire soumis', form.value)
-  // Exemple : envoi via fetch ou axios ici vers ton backend PHP
-  // fetch('/api/register.php', { method: 'POST', body: JSON.stringify(form.value) })
+const submitForm = async () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+  loading.value = true
+
+  try {
+    const { username, email, password } = form.value
+    const response = await authService.register(username, email, password)
+
+    successMessage.value = '🎉 Inscription réussie ! Redirection en cours...'
+    localStorage.setItem('token', response.token) 
+    setTimeout(() => {
+      router.push('/')
+    }, 2000) // pour laisser le temps de voir le message de succès
+  } catch (err: any) {
+    errorMessage.value = err.response?.data?.error || "Erreur lors de l'inscription"
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

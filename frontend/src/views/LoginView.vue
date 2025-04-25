@@ -13,9 +13,9 @@
             <v-card-title class="text-h4">Connexion</v-card-title>
 
             <v-card-text>
-              <v-form>
+              <v-form @submit.prevent="submitLogin">
                 <v-text-field
-                  v-model="email"
+                  v-model="loginForm.email"
                   label="Adresse e-mail"
                   type="email"
                   prepend-inner-icon="mdi-email"
@@ -25,7 +25,7 @@
                 />
                 <!-- <div class="mb-4"> -->
                   <v-text-field
-                    v-model="password"
+                    v-model="loginForm.password"
                     label="Mot de passe"
                     type="password"
                     prepend-inner-icon="mdi-lock"
@@ -46,7 +46,7 @@
                   </div>
                 <!-- </div> -->
 
-                <v-btn block color="primary" class="mt-0 mb-4" @click="login">
+                <v-btn block color="primary" class="mt-0 mb-4" type="submit">
                   Se connecter
                 </v-btn>
 
@@ -104,15 +104,32 @@
 </template>
 
 <script setup lang="ts">
+import { authService } from '@/api/services/authService'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const email = ref('')
-const password = ref('')
 const router = useRouter()
 
-const login = () => {
-  console.log('Tentative de connexion avec', email.value, password.value)
+const loginForm = ref({
+  email: '',
+  password: '',
+})
+
+const errorMessage = ref('')
+const loading = ref(false) 
+
+const submitLogin = async () => {
+  loading.value = true
+  errorMessage.value = ''
+  try {
+    const response = await authService.login(loginForm.value.email, loginForm.value.password)
+    localStorage.setItem('token', response.token)
+    router.push('/') // redirection après connexion
+  } catch (error: any) {
+    errorMessage.value = error.response?.data?.error || 'Erreur de connexion'
+  } finally {
+    loading.value = false
+  }
 }
 
 const goToRegister = () => {
@@ -124,17 +141,18 @@ const forgotDialog = ref(false)
 const forgotEmail = ref('')
 const forgotSent = ref(false)
 
-const sendForgotPassword = () => {
-  // Appel à l’API ou feedback local
-  console.log('Demande de reset pour :', forgotEmail.value)
-  forgotSent.value = true
+const sendForgotPassword = async () => {
+  if (!forgotEmail.value) return
 
-  // Simuler un délai ou gérer une réponse backend
-  setTimeout(() => {
-    forgotDialog.value = false
-    forgotEmail.value = ''
-    forgotSent.value = false
-  }, 2000)
+  loading.value = true
+  try {
+    await authService.forgotPassword(forgotEmail.value)
+    forgotSent.value = true
+  } catch (error: any) {
+    errorMessage.value = error.response?.data?.error || "Erreur lors de l'envoi de l'email"
+  } finally {
+    loading.value = false
+  }
 }
 
 
