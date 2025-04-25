@@ -5,7 +5,7 @@ require_once '../../../api/cors.php';
 
 try {
     $db = Database::getConnection();
-    $authController = new AuthController($db);
+    $authController = new AuthControllers($db);
 
     // Vérifie si la requête contient du JSON valide
     $rawData = file_get_contents("php://input");

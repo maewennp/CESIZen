@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-class AuthController
+class AuthControllers
 {
     private $userModel;
     private $jwtSecret;
@@ -62,4 +62,17 @@ class AuthController
             return ["error" => "Erreur lors de la génération du token JWT"];
         }
     }
+
+    public function register($data)
+  {
+    if (!isset($data['username'], $data['email'], $data['password'])) {
+        return ["error" => "Données incomplètes"];
+    }
+
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        return ["error" => "Email invalide"];
+    }
+    $is_admin = $data['is_admin'] ?? false; // facultatif dans l'inscription
+    return $this->userModel->createUser($data['username'], $data['email'], $data['password'], $is_admin);
+  }
 }
