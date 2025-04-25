@@ -49,7 +49,7 @@
                 <v-btn block color="primary" class="mt-0 mb-4" type="submit">
                   Se connecter
                 </v-btn>
-
+                
                 <div class="text-caption">
                   Vous n'avez pas de compte ?
                   <v-btn
@@ -63,6 +63,14 @@
                   </v-btn>
                 </div>
               </v-form>
+              <v-alert
+                  v-if="errorMessage"
+                  type="error"
+                  variant="tonal"
+                  class="mb-4"
+                >
+                  {{ errorMessage }}
+                </v-alert>
             </v-card-text>
           </v-card>
         </div>
@@ -91,10 +99,13 @@
             </v-card-text>
 
             <v-card-actions class="justify-end">
-              <v-btn variant="text" @click="forgotDialog = false">Annuler</v-btn>
-              <v-btn color="darkprimary" @click="sendForgotPassword" :disabled="forgotSent">
-                Envoyer
-              </v-btn>
+              <template v-if="forgotSent">
+                <v-btn color="darkprimary" @click="forgotDialog = false">OK</v-btn>
+              </template>
+              <template v-else>
+                <v-btn variant="text" @click="forgotDialog = false">Annuler</v-btn>
+                <v-btn color="darkprimary" @click="sendForgotPassword" :disabled="forgotSent">Envoyer</v-btn>
+              </template>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -105,10 +116,12 @@
 
 <script setup lang="ts">
 import { authService } from '@/api/services/authService'
+import { useUserStore } from '@/stores/userStore'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const loginForm = ref({
   email: '',
@@ -123,10 +136,10 @@ const submitLogin = async () => {
   errorMessage.value = ''
   try {
     const response = await authService.login(loginForm.value.email, loginForm.value.password)
-    localStorage.setItem('token', response.token)
+    userStore.setToken(response.token)
     router.push('/') // redirection après connexion
   } catch (error: any) {
-    errorMessage.value = error.response?.data?.error || 'Erreur de connexion'
+    errorMessage.value = error.response?.data?.error || 'Erreur de connexion. Login ou mot de passe incorrecte'
   } finally {
     loading.value = false
   }

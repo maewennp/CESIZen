@@ -21,8 +21,8 @@
       <v-spacer />
        <!-- Boutons à droite -->
       <div class="d-flex align-center gap-2">
-        <v-btn icon @click="$emit('login')">
-          <v-icon>mdi-account</v-icon>
+        <v-btn icon @click="isLoggedIn ? goTo('/profile') : $emit('login')">
+          <v-icon>{{ isLoggedIn ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}</v-icon>
         </v-btn>
         <v-menu offset-y transition="slide-y-transition">
           <template #activator="{ props }">
@@ -41,7 +41,7 @@
             </v-list-item>
             <v-divider class="my-2" />
             <v-list-subheader>MODULES</v-list-subheader>
-            <v-list-item v-for="mod in modules" :key="mod.route" @click="handleMenuItemClick(mod)">
+            <v-list-item v-for="mod in filteredModules" :key="mod.route" @click="handleMenuItemClick(mod)">
               <v-icon color="darkprimary" class="mr-2">{{ mod.icon }}</v-icon>
               <span>{{ mod.label }}</span>
             </v-list-item>
@@ -83,19 +83,26 @@
 
         <v-divider class="my-2" />
         <v-list-subheader class="text-uppercase font-weight-bold text-grey">Modules</v-list-subheader>
-        <v-list-item v-for="mod in modules" :key="mod.route" class="nav-item"@click="handleMenuItemClick(mod)">
+        <v-list-item 
+          v-for="mod in filteredModules" 
+          :key="mod.route" 
+          class="nav-item" 
+          @click="handleMenuItemClick(mod)">
           <v-icon color="darkprimary" class="mr-2 my-3">{{ mod.icon }}</v-icon>
           <span>{{ mod.label }}</span>
         </v-list-item>
       </v-list>
       <v-divider class="my-2" />
       <v-list-item 
-          class="d-flex align-center gap-2" 
-          @click="$emit('login')"
-        >
-          <v-icon color="darkprimary" class="mr-2 my-4">mdi-account</v-icon>
-          <span>Se connecter</span>
-        </v-list-item>
+        class="d-flex align-center gap-2" 
+        @click="isLoggedIn ? goTo('/profile') : $emit('login')"
+      >
+        <v-icon color="darkprimary" class="mr-2 my-4">
+          {{ isLoggedIn ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}
+        </v-icon>
+        <span>{{ isLoggedIn ? 'Mon compte' : 'Se connecter' }}</span>
+      </v-list-item> 
+        
     </v-navigation-drawer>
   </div>
 
@@ -113,9 +120,13 @@ import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import ModuleComingSoon from '@/components/ModuleComingSoon.vue'
 import { useModuleComingSoon } from '@/stores/useModuleComingSoon'
+import { useUserStore } from '@/stores/userStore'
 
 const { mdAndUp } = useDisplay()
 const router = useRouter()
+
+const userStore = useUserStore()
+const isLoggedIn = computed(() => !!userStore.token)
 
 const isDesktop = computed(() => mdAndUp.value)
 
@@ -149,8 +160,18 @@ const modules = [
   { label: 'Activité de relaxation', route: '/relax', icon: 'mdi-spa', available: true },
   { label: 'Exercice de respiration', route: '/breathing', icon: 'mdi-weather-windy', available: true },
   { label: 'Diagnostic de stress', route: '/diagnostic', icon: 'mdi-heart-pulse', available: false },
-  { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline', available: false },
+  { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline', available: false},
 ]
+
+// filtre les modules selon la connexion
+const filteredModules = computed(() => {
+  return modules.filter(mod => {
+    if (mod.label === "Tracker d'émotion") {
+      return isLoggedIn.value // Tracker seulement si connecté
+    }
+    return true // Les autres toujours visibles
+  })
+})
 
 const handleMenuItemClick = (item: any) => {
   if (!item.available) {

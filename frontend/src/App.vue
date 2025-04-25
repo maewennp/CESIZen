@@ -11,12 +11,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppMenu from '@/components/AppMenu.vue'
+import { useUserStore } from './stores/userStore'
 
 const route = useRoute()
 const router = useRouter()
+
+const userStore = useUserStore()
 
 const goToLogin = () => {
   router.push('/login')
@@ -25,6 +28,13 @@ const goToLogin = () => {
 // Cacher le menu sur certaines pages
 const hideMenu = computed(() => {
   return ['login', 'register'].includes(route.name as string)
+})
+
+onMounted(async () => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    await userStore.fetchUserProfile()
+  }
 })
 </script>
 

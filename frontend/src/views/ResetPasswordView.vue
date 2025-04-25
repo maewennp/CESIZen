@@ -72,7 +72,8 @@ const form = ref({
 
 const route = useRoute()
 const router = useRouter()
-const token = ref('')
+const token = ref(route.query.token as string || '')
+//const token = ref('')
 
 onMounted(() => {
   token.value = route.query.token as string
