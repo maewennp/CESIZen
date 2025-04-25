@@ -156,7 +156,7 @@ const handleMenuItemClick = (item: any) => {
   if (!item.available) {
     openModal(item.label)
   } else {
-    goTo(item.label)
+    goTo(item.route)
   }
   
 }
