@@ -18,14 +18,15 @@ try {
         $token = substr($token, 7);
     }
 
-    // Récupération de l'ID
-    if (!isset($_GET['id_content'])) {
+    $input = json_decode(file_get_contents("php://input"), true);
+
+    if (empty($input) || !isset($input['id_content'])) {
         http_response_code(400);
         echo json_encode(["error" => "ID requis."]);
         exit;
     }
 
-    $id_content = (int) $_GET['id_content'];
+    $id_content = (int) $input['id_content'];
 
     $result = $controller->toggleVisibilityInfo($token, $id_content);
 
