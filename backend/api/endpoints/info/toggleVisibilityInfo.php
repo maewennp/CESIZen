@@ -4,7 +4,6 @@ require_once '../../../database.php';
 require_once '../../models/Info.php';
 require_once '../../controllers/InfoControllers.php';
 
-
 header('Content-Type: application/json; charset=UTF-8');
 
 try {
@@ -16,31 +15,30 @@ try {
     $token = $headers['Authorization'] ?? '';
 
     if (strpos($token, 'Bearer ') === 0) {
-        $token = substr($token, 7); // Retire "Bearer "
+        $token = substr($token, 7);
     }
 
-    // Récupération des données du POST
-    $input = json_decode(file_get_contents("php://input"), true);
-
-    if (empty($input)) {
+    // Récupération de l'ID
+    if (!isset($_GET['id_content'])) {
         http_response_code(400);
-        echo json_encode(["error" => "Aucune donnée reçue."]);
+        echo json_encode(["error" => "ID requis."]);
         exit;
     }
 
-    // Appel au contrôleur
-    $result = $controller->createInfo($token, $input);
+    $id_content = (int) $_GET['id_content'];
+
+    $result = $controller->toggleVisibilityInfo($token, $id_content);
 
     if (isset($result['error'])) {
         http_response_code(403);
     } else {
-        http_response_code(201); // Created
+        http_response_code(200);
     }
 
     echo json_encode($result);
 
 } catch (Exception $e) {
-    error_log("Erreur createInfo: " . $e->getMessage());
+    error_log("Erreur toggleVisibilityInfo: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(["error" => "Erreur serveur."]);
 }

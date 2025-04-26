@@ -94,8 +94,38 @@ VALUES
 -- 11. RELAX ACTIVITY
 INSERT INTO relax_activity (activity_label, content, category, is_active, type, media_activity)
 VALUES
-('Méditation guidée', 'Exercice audio', 'relaxation', TRUE, 'audio', 'meditation.mp3'),
-('Lecture zen', 'Texte apaisant', 'lecture', TRUE, 'article', NULL);
+(
+  'Yoga doux',
+  'Explorez une série de mouvements lents et fluides qui favorisent la souplesse et relâchent les tensions musculaires. La pratique du yoga doux permet une meilleure conscience du corps et une respiration plus profonde. C’est une méthode idéale pour détendre l’esprit et évacuer le stress accumulé dans la journée. Les postures sont accessibles à tous les niveaux et peuvent être réalisées en toute sérénité. Un moment pour soi, pour relier corps et esprit dans le calme.',
+  'relaxation',
+  TRUE,
+  'image',
+  '/assets/images/relax/yoga.jpg'
+),
+(
+  'Pause détente',
+  'Faites une vraie pause mentale grâce à cette activité de recentrage. L’objectif est simple : couper le flux de pensées parasites et revenir à l’instant présent. Par des exercices de respiration, de pleine conscience et de relâchement musculaire, vous retrouvez un état de calme profond. C’est idéal pour relancer la concentration ou terminer une journée agitée. Un rituel court mais puissant à intégrer dans votre quotidien.',
+  'relaxation',
+  TRUE,
+  'image',
+  '/assets/images/relax/pause-detente.png'
+),
+(
+  'Visualisation positive',
+  'Renforcez votre mental en vous projetant dans des situations apaisantes. Cette technique puissante vous permet de stimuler des sensations de bien-être en vous imaginant dans un environnement rassurant. Elle est souvent utilisée pour diminuer l’anxiété, améliorer la confiance en soi et préparer des événements stressants. En quelques minutes, vous plongez dans un état de détente profonde. Une belle manière de reprogrammer son esprit au positif.',
+  'relaxation',
+  TRUE,
+  'image',
+  '/assets/images/relax/visu-positive.png'
+),
+(
+  'Méditation guidée',
+  'Laissez-vous porter par une voix douce qui vous guide vers un apaisement intérieur. La méditation guidée aide à relâcher les tensions physiques et émotionnelles en se concentrant sur des sensations simples. Elle est parfaite pour les débutants comme pour les initiés, et ne nécessite aucune connaissance préalable. Grâce à cette pratique, vous cultivez la présence, la bienveillance envers vous-même et la sérénité. Un moment suspendu pour se reconnecter à l’essentiel.',
+  'relaxation',
+  TRUE,
+  'image',
+  '/assets/images/relax/meditation.jpg'
+);
 
 -- 12. FAVORITE
 INSERT INTO favorite (created_at, updated_at, still_fav, id_activity, id_user)
@@ -111,5 +141,29 @@ VALUES
 -- 14. CONTENT PAGE
 INSERT INTO content_page (content_label, body, media_content, visible, created_at, id_user)
 VALUES
-('À propos', 'Bienvenue sur CESIZen...', NULL, TRUE, NOW(), 1),
-('Mentions légales', 'Conforme au RGPD...', NULL, TRUE, NOW(), 1);
+('À propos', 'Bienvenue sur CESIZen...', NULL, FALSE, NOW(), 1),
+('Mentions légales', 'Conforme au RGPD...', NULL, FALSE, NOW(), 1);
+(
+  "L'importance de la santé mentale",
+  "La santé mentale est la base de notre équilibre. Elle influence nos émotions, nos décisions et nos relations. Une bonne santé mentale permet de mieux gérer les défis du quotidien, de rebondir face aux épreuves et de cultiver un sentiment de bien-être durable. Apprendre à en prendre soin est essentiel pour prévenir le stress, l’anxiété ou l’épuisement. Cela passe par l’écoute de soi, le repos, et la mise en place de rituels bienveillants. Une attention portée à notre esprit est une véritable force.",
+  "/assets/images/info/info0.png",
+  TRUE,
+  NOW(),
+  1
+),
+(
+  "Les bienfaits de la respiration",
+  "La respiration consciente est un outil simple mais puissant pour réguler le stress. En apprenant à respirer lentement et profondément, on active le système nerveux parasympathique, celui du calme et du repos. Cette technique permet d’apaiser l’esprit, de retrouver de la clarté mentale et de ralentir le rythme intérieur. C’est une pratique accessible à tous, à tout moment de la journée. Respirez… et offrez à votre corps une pause précieuse.",
+  "/assets/images/info/info1.jpg",
+  TRUE,
+  NOW(),
+  1
+),
+(
+  "Relaxation guidée",
+  "La relaxation guidée est une invitation à lâcher prise. En suivant une voix douce, vous êtes amené à détendre chaque partie de votre corps, à relâcher les tensions physiques et mentales. Cette méthode améliore la qualité du sommeil, diminue l’irritabilité et augmente la sensation de bien-être. C’est un vrai moment de pause où vous vous reconnectez à votre corps, à votre souffle, à vous-même. Idéale en fin de journée ou après un moment de stress.",
+  "/assets/images/info/info2.jpg",
+  TRUE,
+  NOW(),
+  1
+);

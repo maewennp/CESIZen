@@ -1,9 +1,8 @@
 <?php
-
+require_once '../../cors.php';
 require_once '../../../database.php';
 require_once '../../controllers/UsersControllers.php';
 require_once '../../models/User.php';
-require_once '../../cors.php';
 
 try {
     $db = Database::getConnection();
