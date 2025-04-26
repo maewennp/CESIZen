@@ -27,6 +27,7 @@ class UsersControllers
             $decoded = JWT::decode($token, new Key($this->jwtSecret, 'HS256'));
             return $decoded;
         } catch (Exception $e) {
+            error_log("Erreur JWT checkAuth: " . $e->getMessage());
             return (object) ["error" => "Token invalide ou expiré"];
         }
     }
@@ -48,48 +49,76 @@ class UsersControllers
         return ["profile" => $user];
     }
 
-    public function getAllUsers() //public function getAllUsers($token)
+    public function adminGetAllUsers($token)
     {
-        // $auth = $this->checkAuth($token);
-        // if (isset($auth->error)) return ["error" => $auth->error];
+        $auth = $this->checkAuth($token);
 
-        // if (!($auth->is_admin ?? false)) {
-        //     return ["error" => "Accès refusé : droits insuffisants"];
-        // }
+        if (isset($auth->error)) {
+            return ["error" => $auth->error];
+        }
+
+        if (!($auth->is_admin ?? false)) {
+            return ["error" => "Accès interdit - Admin uniquement"];
+        }
 
         return $this->userModel->getAllUsers();
     }
+
 
     public function deleteUser($token, $id_user)
     {
         $auth = $this->checkAuth($token);
         if (isset($auth->error)) return ["error" => $auth->error];
 
-        if (!($auth->is_admin ?? false)) {
+        // Seul l'utilisateur concerné OU un admin peut supprimer
+        if ($auth->sub != $id_user && !($auth->is_admin ?? false)) {
             return ["error" => "Accès refusé"];
         }
 
         return $this->userModel->deleteUser($id_user);
     }
 
-    public function updateUser($token, $data)
+    public function updateUser($token, $id_user, $data)
     {
+        // Vérifier le token
         $auth = $this->checkAuth($token);
-        if (isset($auth->error)) return ["error" => $auth->error];
+        if (isset($auth->error)) {
+            return ["error" => $auth->error];
+        }
 
-        return $this->userModel->updateUser($auth->sub, $data);
-    }
+        // Vérifier si l'utilisateur connecté est admin ou propriétaire du compte
+        $isAdmin = $auth->is_admin ?? false;
+        $userIdFromToken = $auth->sub ?? null;
 
-    public function changeStatus($token, $id_user)
-    {
-        $auth = $this->checkAuth($token);
-        if (isset($auth->error)) return ["error" => $auth->error];
-
-        if (!($auth->is_admin ?? false)) {
+        if (!$isAdmin && $userIdFromToken != $id_user) {
             return ["error" => "Accès refusé"];
         }
 
-        return $this->userModel->changeStatus($id_user);
+        // Protéger : si ce n'est pas un admin, empêcher de modifier is_admin
+        if (!$isAdmin) {
+            unset($data['is_admin']);
+        }
+
+        // Appeler la méthode du modèle
+        $result = $this->userModel->updateUser($id_user, $data);
+
+        if (isset($result['error'])) {
+            return ["error" => $result['error']];
+        }
+
+        return ["message" => "Utilisateur mis à jour avec succès"];
+    }
+
+    public function toggleIsActiveUser($token, $id_user)
+    {
+        $auth = $this->checkAuth($token);
+        if (isset($auth->error)) return ["error" => $auth->error];
+    
+        if (!($auth->is_admin ?? false)) {
+            return ["error" => "Accès réservé aux administrateurs"];
+        }
+    
+        return $this->userModel->toggleIsActiveUser($id_user);
     }
 
     public function changePassword($email, $newPassword)
@@ -113,4 +142,20 @@ class UsersControllers
             true // admin
         );
     }
+
+    public function getOneUser($token, $criteria)
+    {
+        $auth = $this->checkAuth($token);
+
+        if (isset($auth->error)) {
+            return ["error" => $auth->error];
+        }
+
+        if (!($auth->is_admin ?? false)) {
+            return ["error" => "Accès interdit"];
+        }
+
+        return $this->userModel->getUser($criteria);
+    }
+
 }

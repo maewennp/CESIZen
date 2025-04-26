@@ -87,13 +87,17 @@ class User
     public function deleteUser($id_user)
     {
         try {
-            $sql = "UPDATE {$this->table} SET deleted_at = NOW() WHERE id_user = :id_user";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([':id_user' => $id_user]);
+            $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE id_user = :id_user");
+            $stmt->bindParam(':id_user', $id_user, PDO::PARAM_INT);
+            $stmt->execute();
 
-            return ["message" => "Utilisateur supprimé (soft delete)"];
+            if ($stmt->rowCount() > 0) {
+                return ["message" => "Utilisateur supprimé avec succès"];
+            } else {
+                return ["error" => "Utilisateur non trouvé ou déjà supprimé"];
+            }
         } catch (PDOException $e) {
-            error_log("Erreur SQL: " . $e->getMessage());
+            error_log("Erreur SQL dans deleteUser: " . $e->getMessage());
             return ["error" => "Erreur lors de la suppression"];
         }
     }
@@ -101,11 +105,10 @@ class User
     public function getAllUsers()
     {
         try {
-            $sql = "SELECT id_user, username, email, is_admin, is_active, created_at FROM {$this->table} WHERE deleted_at IS NULL";
-            $stmt = $this->pdo->query($sql);
+            $stmt = $this->pdo->query("SELECT id_user, username, email, is_admin, is_active, created_at FROM {$this->table} ORDER BY created_at DESC");
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Erreur SQL: " . $e->getMessage());
+            error_log("Erreur SQL dans getAllUsersSafe: " . $e->getMessage());
             return [];
         }
     }
@@ -146,9 +149,10 @@ class User
         }
     }
 
-    public function changeStatus($id_user)
+    public function toggleIsActiveUser($id_user)
     {
         try {
+            // Récupérer l'état actuel
             $stmt = $this->pdo->prepare("SELECT is_active FROM {$this->table} WHERE id_user = :id_user");
             $stmt->execute([':id_user' => $id_user]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -159,14 +163,17 @@ class User
 
             $newStatus = $user['is_active'] ? 0 : 1;
 
-            $stmt = $this->pdo->prepare("UPDATE {$this->table} SET is_active = :status WHERE id_user = :id_user");
-            $stmt->execute([':status' => $newStatus, ':id_user' => $id_user]);
+            // Mise à jour
+            $updateStmt = $this->pdo->prepare("UPDATE {$this->table} SET is_active = :newStatus WHERE id_user = :id_user");
+            $updateStmt->execute([
+                ':newStatus' => $newStatus,
+                ':id_user' => $id_user
+            ]);
 
-            return ["message" => "Statut mis à jour", "new_status" => $newStatus];
-
+            return ["message" => "État du compte mis à jour", "is_active" => $newStatus];
         } catch (PDOException $e) {
-            error_log("Erreur SQL: " . $e->getMessage());
-            return ["error" => "Erreur lors de la mise à jour du statut"];
+            error_log("Erreur SQL dans toggleIsActiveUser: " . $e->getMessage());
+            return ["error" => "Erreur serveur lors de la mise à jour"];
         }
     }
 
@@ -193,4 +200,52 @@ class User
             return ["error" => "Erreur lors du changement de mot de passe"];
         }
     }
+
+
+    public function getUser($criteria)
+{
+    try {
+        if (empty($criteria)) {
+            return ["error" => "Aucun critère fourni"];
+        }
+
+        $conditions = [];
+        $params = [];
+
+        if (isset($criteria['id_user'])) {
+            $conditions[] = 'id_user = :id_user';
+            $params[':id_user'] = $criteria['id_user'];
+        }
+        if (isset($criteria['username'])) {
+            $conditions[] = 'username = :username';
+            $params[':username'] = $criteria['username'];
+        }
+        if (isset($criteria['email'])) {
+            $conditions[] = 'email = :email';
+            $params[':email'] = $criteria['email'];
+        }
+
+        if (empty($conditions)) {
+            return ["error" => "Critères invalides"];
+        }
+
+        $sql = "SELECT id_user, username, email, is_admin, is_active, created_at, updated_at 
+                FROM users 
+                WHERE " . implode(' OR ', $conditions) . " LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return ["error" => "Utilisateur non trouvé"];
+        }
+
+        return $user;
+    } catch (PDOException $e) {
+        error_log("Erreur SQL dans getUser: " . $e->getMessage());
+        return ["error" => "Erreur serveur"];
+    }
+}
 }

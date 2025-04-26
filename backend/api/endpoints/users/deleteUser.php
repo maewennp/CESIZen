@@ -10,6 +10,7 @@ try {
     $db = Database::getConnection();
     $controller = new UsersControllers($db);
 
+    // Récupération du token
     $headers = getallheaders();
     $token = $headers['Authorization'] ?? '';
 
@@ -17,18 +18,30 @@ try {
         $token = substr($token, 7);
     }
 
-    $users = $controller->adminGetAllUsers($token);
+    // Lecture du body
+    $input = json_decode(file_get_contents("php://input"), true);
 
-    if (isset($users['error'])) {
-        http_response_code(403);
-        echo json_encode($users);
-    } else {
-        http_response_code(200);
-        echo json_encode($users);
+    if (empty($input) || !isset($input['id_user'])) {
+        http_response_code(400);
+        echo json_encode(["error" => "ID utilisateur requis."]);
+        exit;
     }
 
+    $id_user = (int)$input['id_user'];
+
+    // Appel du contrôleur
+    $result = $controller->deleteUser($token, $id_user);
+
+    if (isset($result['error'])) {
+        http_response_code(403);
+    } else {
+        http_response_code(200);
+    }
+
+    echo json_encode($result);
+
 } catch (Exception $e) {
-    error_log("Erreur getAllUsers: " . $e->getMessage());
+    error_log("Erreur deleteUser: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(["error" => "Erreur serveur."]);
 }

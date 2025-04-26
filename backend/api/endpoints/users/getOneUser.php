@@ -17,19 +17,26 @@ try {
         $token = substr($token, 7);
     }
 
-    $users = $controller->adminGetAllUsers($token);
+    $input = json_decode(file_get_contents("php://input"), true);
 
-    if (isset($users['error'])) {
-        http_response_code(403);
-        echo json_encode($users);
-    } else {
-        http_response_code(200);
-        echo json_encode($users);
+    if (empty($input)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Critères de recherche manquants"]);
+        exit;
     }
 
+    $result = $controller->getOneUser($token, $input);
+
+    if (isset($result['error'])) {
+        http_response_code(404);
+    } else {
+        http_response_code(200);
+    }
+
+    echo json_encode($result);
+
 } catch (Exception $e) {
-    error_log("Erreur getAllUsers: " . $e->getMessage());
+    error_log("Erreur getOneUser: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["error" => "Erreur serveur."]);
+    echo json_encode(["error" => "Erreur serveur"]);
 }
-?>
