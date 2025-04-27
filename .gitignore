@@ -14,3 +14,6 @@ docker/.env
 .vscode/
 .DS_Store
 *.log
+
+# test
+.phpunit.result.cache

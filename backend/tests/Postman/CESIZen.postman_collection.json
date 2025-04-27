@@ -1,0 +1,924 @@
+{
+	"info": {
+		"_postman_id": "e3365ce2-ee3f-4aac-844f-efc76ad8c70f",
+		"name": "CESIZen",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32719189"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"admin@cesizen.fr\",\r\n  \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/auth/login.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"auth",
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"ZenUser\",\r\n  \"email\": \"zen@cesizen.fr\",\r\n  \"password\": \"123456789\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/auth/register.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"auth",
+								"register.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "registerAdmin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"Maewenn\",\r\n  \"email\": \"maewenn@cesizen.fr\",\r\n  \"password\": \"password123\",\r\n  \"is_admin\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/auth/register.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"auth",
+								"register.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forgotPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"happie@cesizen.fr\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/auth/forgotPassword.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"auth",
+								"forgotPassword.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resetPassword",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"reset_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImhhcHBpZUBjZXNpemVuLmZyIiwiZXhwIjoxNzQ1NTg5OTQwfQ.vT3H41x6MbADSm8Q2Zl6_dGMNdNhZTe_HFZEtlxJY9E\",\r\n  \"new_password\": \"newPassword123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/auth/resetPassword.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"auth",
+								"resetPassword.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "getAllUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/users/getAllUsers.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"users",
+								"getAllUsers.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/users/profile.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"users",
+								"profile.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NzA1NjM0LCJleHAiOjE3NDU3OTIwMzQsInN1YiI6NCwidXNlcm5hbWUiOiJub3V2ZWF1VXNlcm5hbWUiLCJlbWFpbCI6Im5vdXZlbC5lbWFpbEBleGFtcGxlLmNvbSIsImlzX2FkbWluIjpmYWxzZX0.bdEHh9_fmTGOFgwNgRf44ad81UwrsJ5U4S5nl_kOFIc",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id_user\": 4,\r\n    \"username\": \"UserZenIsBack\",\r\n    \"email\": \"nouvel.email@cesizen.fr\",\r\n    \"password\": \"nouveauPassword123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/users/updateUser.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"users",
+								"updateUser.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_user\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/users/deleteUser.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"users",
+								"deleteUser.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "toggleActiveUser",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_user\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/users/toggleIsActiveUser.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"users",
+								"toggleIsActiveUser.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneUser",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"mw.porgeon@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/users/getOneUser.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"users",
+								"getOneUser.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "info",
+			"item": [
+				{
+					"name": "getAllInfos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/info/getAllInfos.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"info",
+								"getAllInfos.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneInfo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/info/getOneInfo.php?id_content=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"info",
+								"getOneInfo.php"
+							],
+							"query": [
+								{
+									"key": "id_content",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "adminGetAllInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/info/adminGetAllInfos.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"info",
+								"adminGetAllInfos.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"content_label\": \"Nouvelle info test3\",\r\n  \"body\": \"Info pour tester la suppression sans query params.\",\r\n  \"media_content\": \"url_vers_image.png\",\r\n  \"visible\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/info/createInfo.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"info",
+								"createInfo.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"id_content\": 6,\r\n    \"content_label\": \"Nouveau titre de test - update\",\r\n    \"body\": \"Ceci est un contenu mis à jour pour test.\",\r\n    \"media_content\": \"url_vers_image.jpg\",\r\n    \"visible\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/info/updateInfo.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"info",
+								"updateInfo.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_content\": 8\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/info/deleteInfo.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"info",
+								"deleteInfo.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "toggleVisibilityInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_content\": 7\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/info/toggleVisibilityInfo.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"info",
+								"toggleVisibilityInfo.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RelaxActivities",
+			"item": [
+				{
+					"name": "getAllActiveRelaxActivities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/relaxActivity/getAllActiveRelaxActivities.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"relaxActivity",
+								"getAllActiveRelaxActivities.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "adminGetAllRelaxeActivities",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/relaxActivity/adminGetAllRelaxActivities.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"relaxActivity",
+								"adminGetAllRelaxActivities.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createRelaxActivity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"activity_label\": \"Séance de méditation en marchant\",\r\n  \"content\": \"Relaxation profonde guidée...\",\r\n  \"category\": \"relaxation\",\r\n  \"type\": \"audio\",\r\n  \"media_activity\": \"meditation.mp3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/relaxActivity/createRelaxActivity.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"relaxActivity",
+								"createRelaxActivity.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneRelaxActivity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/relaxActivity/getOneRelaxActivity.php?id_activity=5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"relaxActivity",
+								"getOneRelaxActivity.php"
+							],
+							"query": [
+								{
+									"key": "id_activity",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateRelaxActivity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id_activity\": 5,\r\n    \"activity_label\": \"Nouveau titre\",\r\n    \"content\": \"Contenu mis à jour\",\r\n    \"category\": \"relaxation\",\r\n    \"type\": \"audio\",\r\n    \"media_activity\": \"nouvelle_url_media.mp3\",\r\n    \"is_active\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/relaxActivity/updateRelaxActivity.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"relaxActivity",
+								"updateRelaxActivity.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteRelaxActivity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id_activity\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/relaxActivity/deleteRelaxActivity.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"relaxActivity",
+								"deleteRelaxActivity.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "toggleActiveRelaxActivity",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDRVNJWmVuIiwiaWF0IjoxNzQ1NjkxOTIwLCJleHAiOjE3NDU3NzgzMjAsInN1YiI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AY2VzaXplbi5mciIsImlzX2FkbWluIjp0cnVlfQ.X69-s_9xtiaSZB53naWn-bcPmq4v2tDVgNc5ShRX1l0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_activity\": 6\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/endpoints/relaxActivity/toggleActiveRelaxActivity.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"endpoints",
+								"relaxActivity",
+								"toggleActiveRelaxActivity.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
