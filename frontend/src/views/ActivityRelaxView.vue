@@ -21,6 +21,7 @@
           class="d-flex justify-center"
         >
           <ContentCard
+            :id="item.id"
             :title="item.title"
             :description="item.description"
             :image="item.image"

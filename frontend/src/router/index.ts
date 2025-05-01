@@ -44,7 +44,27 @@ const router = createRouter({
       path: '/relax/:id',
       name: 'relax-detail',
       component: () => import('../views/RelaxDetailView.vue'),
-    }
+    },
+    {
+      path: '/account',
+      name: 'account',
+      component: () => import('../views/AccountView.vue'),
+    },
+    {
+      path: '/favorites',
+      name: 'favorites',
+      component: () => import('../views/FavoritesView.vue'),
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: () => import('../views/HistoryView.vue'),
+    },
+    {
+      path: '/breathing',
+      name: 'breathing',
+      component: () => import('../views/BreathingView.vue'),
+    },
     
   ],
 })

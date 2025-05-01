@@ -38,9 +38,13 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue'
+import { defineProps, defineEmits, ref, computed } from 'vue'
+import { useFavoritesStore } from '@/stores/useFavoritesStore'
+
+const favoritesStore = useFavoritesStore()
 
 const props = defineProps({
+  id: Number,
   title: String,
   description: String,
   image: String,
@@ -48,14 +52,24 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['click'])
-const isFavorite = ref(false)
+
+//const isFavorite = ref(false)
+const isFavorite = computed(() =>
+  props.id !== undefined ? favoritesStore.isFavorite(props.id) : false
+)
 
 const handleClick = () => {
   emit('click')
 }
 
+// const toggleFavorite = () => {
+//   isFavorite.value = !isFavorite.value
+// }
+
 const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value
+  if (props.id !== undefined) {
+    favoritesStore.toggleFavorite(props.id)
+  }
 }
 </script>
 
