@@ -3,17 +3,28 @@
     <v-container class="text-center py-10">
       <h1 class="text-h4 mb-8">Exercice de respiration</h1>
 
+      <p class="text-body-1 mb-6">
+        La respiration est un outil puissant pour réguler le stress, retrouver le calme et améliorer votre bien-être mental. Choisissez l’exercice qui vous convient et suivez le rythme.
+      </p>
+
       <v-select
         v-model="selectedExercise"
         :items="exerciseOptions"
         label="Choix de l'exercice"
+        item-value="value"
         outlined
         class="mb-4"
       />
 
+      <!-- Texte explicatif en fonction du choix -->
+      <p v-if="selectedExercise" class="text-caption text-grey mb-6">
+        {{ exerciseDescriptions[selectedExercise] }}
+      </p>
+
       <v-btn
         color="primary"
         class="mb-8"
+        :disabled="!selectedExercise"
         @click="isRunning ? stopBreathing() : startBreathing()"
       >
         {{ isRunning ? 'Arrêter' : 'Lancer' }}
@@ -38,8 +49,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const selectedExercise = ref('4-4-4')
-const exerciseOptions = ['3-4-5', '4-4-4', '5-5-5']
+//const selectedExercise = ref('4-4-4')
+//const exerciseOptions = ['3-4-5', '4-4-4', '5-5-5']
 
 const isRunning = ref(false)
 const phase = ref<'inspire' | 'pause' | 'expire'>('inspire')
@@ -53,6 +64,20 @@ let animationTimer: any
 let phases: { label: string; time: number; type: 'inspire' | 'pause' | 'expire' }[] = []
 let step = 0
 let duration = 0
+
+const selectedExercise = ref('')
+
+const exerciseOptions = [
+  '7-4-8',
+  '5-0-5',
+  '4-0-6',
+]
+
+const exerciseDescriptions: Record<string, string> = {
+  '7-4-8': '7 secondes d’inspiration, 4 secondes de pause, 8 secondes d’expiration.',
+  '5-0-5': '5 secondes d’inspiration, 0 secondes d’apnée, 5 secondes d’expiration.',
+  '4-0-6': '4 secondes d’inspiration, 0 secondes d’apnée, 6 secondes d’expiration.',
+}
 
 const startBreathing = () => {
   const [inTime, pauseTime, outTime] = selectedExercise.value.split('-').map(Number)

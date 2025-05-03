@@ -21,7 +21,7 @@
       <v-spacer />
        <!-- Boutons à droite -->
       <div class="d-flex align-center gap-2">
-        <v-btn icon @click="isLoggedIn ? goTo('/profile') : $emit('login')">
+        <v-btn icon @click="isLoggedIn ? goTo('/account') : $emit('login')">
           <v-icon>{{ isLoggedIn ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}</v-icon>
         </v-btn>
         <v-menu offset-y transition="slide-y-transition">
@@ -95,7 +95,7 @@
       <v-divider class="my-2" />
       <v-list-item 
         class="d-flex align-center gap-2" 
-        @click="isLoggedIn ? goTo('/profile') : $emit('login')"
+        @click="isLoggedIn ? goTo('/account') : $emit('login')"
       >
         <v-icon color="darkprimary" class="mr-2 my-4">
           {{ isLoggedIn ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}

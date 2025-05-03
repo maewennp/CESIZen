@@ -65,6 +65,12 @@ const router = createRouter({
       name: 'breathing',
       component: () => import('../views/BreathingView.vue'),
     },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/AdminDashboard.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
     
   ],
 })

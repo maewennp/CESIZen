@@ -1,0 +1,433 @@
+<template>
+  <div class="admin-dashboard">
+    <v-container class="py-10">
+      <h1 class="text-h4 text-center mb-8">Tableau de bord Administrateur</h1>
+
+      <!-- GRID PRINCIPALE -->
+      <v-row justify="center" align="stretch" dense>
+        <v-col cols="12" sm="6" md="4" v-for="section in sections" :key="section.label">
+          <v-card
+            class="admin-card d-flex flex-column justify-space-between"
+            @click="selectSection(section.key)"
+            height="100"
+          >
+            <v-card-title class="text-h6">
+              <v-icon start class="mr-2" color="darkprimary">{{ section.icon }}</v-icon>
+              {{ section.label }}
+            </v-card-title>
+            <v-card-text class="text-body-2">
+              {{ section.description }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- ZONE DE CONTENU DYNAMIQUE -->
+      <v-expand-transition>
+        <AdminTable
+          v-if="selectedSection === 'users'"
+          title="Gestion des utilisateurs"
+          :headers="userHeaders"
+          :items="users"
+          :show-toggle="true"
+          @edit="openEditUser"
+          @delete="deleteUser"
+          @toggle="toggleUser"
+          @add="openCreateUser"
+        />
+
+        <AdminTable
+          v-else-if="selectedSection === 'informations'"
+          title="Gestion des informations"
+          :headers="infoHeaders"
+          :items="informations"
+          :item-key="'content_label'"
+          :show-toggle="true"
+          @edit="editInformation"
+          @delete="deleteInformation"
+          @toggle="toggleInformation"
+          @add="openCreateInfo"
+        />
+
+        <AdminTable
+          v-else-if="selectedSection === 'relaxations'"
+          title="Gestion des activités"
+          :headers="activityHeaders"
+          :items="activities"
+          :item-key="'activity_label'"
+          :show-toggle="true"
+          @edit="editActivity"
+          @delete="deleteActivity"
+          @toggle="toggleActivity"
+          @add="openCreateActivity"
+        />
+      </v-expand-transition>
+
+      <!-- MODALE AJOUT/ MODIF UTILISATEUR -->
+      <v-dialog v-model="showUserDialog" max-width="500">
+        <v-card>
+          <v-card-title class="text-h6 text-darkprimary">
+            <v-icon start class="mr-2">mdi-account</v-icon>
+            {{ isEditMode ? 'Modifier l’utilisateur' : 'Créer un utilisateur' }}
+          </v-card-title>
+          <v-card-text>
+            <UserForm
+              :model-value="userFormModel"
+              :is-edit="isEditMode"
+              @submit="handleUserSubmit"
+              @cancel="closeUserDialog"
+            />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <!-- MODALE AJOUT/ MODIF INFORMATION -->
+      <v-dialog v-model="showInfoDialog" max-width="600">
+        <v-card>
+          <v-card-title class="text-h6 text-darkprimary">
+            <v-icon start class="mr-2">mdi-information</v-icon>
+            {{ isEditingInfo ? 'Modifier' : 'Créer' }} une information
+          </v-card-title>
+          <v-card-text>
+            <InfoForm
+              :model-value="editedInfo"
+              @submit="saveInfo"
+              @cancel="showInfoDialog = false"
+            />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <!-- MODALE AJOUT/ MODIF ACTIVITE DE RELAXATION -->
+      <v-dialog v-model="showActivityDialog" max-width="600">
+        <v-card>
+          <v-card-title class="text-h6 text-darkprimary">
+            <v-icon start class="mr-2">mdi-spa</v-icon>
+            {{ isEditingActivity ? 'Modifier' : 'Créer' }} une activité
+          </v-card-title>
+          <v-card-text>
+            <RelaxActivityForm
+              :model-value="editedActivity"
+              @submit="saveActivity"
+              @cancel="showActivityDialog = false"
+            />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+    </v-container>
+
+    <!-- MODALE SUPPRESSION -->
+    <v-dialog v-model="showDeleteDialog" max-width="400">
+      <v-card>
+        <v-card-title class="text-h6">Confirmer la suppression</v-card-title>
+        <v-card-text>
+          Voulez-vous vraiment supprimer 
+          <strong>{{ selectedItem?.username || selectedItem?.content_label || selectedItem?.activity_label }}</strong> ?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="showDeleteDialog = false">Annuler</v-btn>
+          <v-btn color="red" @click="confirmDelete">Supprimer</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import AdminTable from '@/components/AdminTable.vue'
+import UserForm from '@/components/UserForm.vue'
+import InfoForm from '@/components/InfoForm.vue'
+import RelaxActivityForm from '@/components/RelaxActivityForm.vue'
+
+// ================  ADMIN - grid principal =================
+
+const sections = [
+  {
+    key: 'users',
+    label: 'Utilisateurs',
+    description: 'Gérer les comptes utilisateurs, rôles et statuts.',
+    icon: 'mdi-account-multiple',
+  },
+  {
+    key: 'informations',
+    label: 'Informations',
+    description: 'Ajouter, modifier ou désactiver les informations affichées.',
+    icon: 'mdi-information-outline',
+  },
+  {
+    key: 'relaxations',
+    label: 'Activités relaxation',
+    description: 'Administrer les activités proposées.',
+    icon: 'mdi-spa',
+  },
+]
+
+const selectedSection = ref<string | null>(null)
+const selectedItem = ref<any>(null)
+const showDeleteDialog = ref(false)
+
+const selectSection = (key: string) => {
+  selectedSection.value = key
+}
+
+// =================   USER =======================
+
+const userHeaders = [
+  { title: 'Nom d’utilisateur', key: 'username' },
+  { title: 'Email', key: 'email' },
+  { title: 'Actions', key: 'actions', sortable: false },
+]
+
+const users = ref([
+  { id: 1, username: 'zen_user', email: 'zen@example.com', is_admin: false, active: true },
+  { id: 2, username: 'admin_user', email: 'admin@example.com', is_admin: true, active: false }
+])
+
+// Gestion suppression Utilisateur
+const deleteUser = (user: any) => {
+  selectedItem.value = user
+  showDeleteDialog.value = true
+}
+
+const confirmDelete = () => {
+  users.value = users.value.filter(u => u.id !== selectedItem.value.id)
+  showDeleteDialog.value = false
+  selectedItem.value = null
+}
+
+// Gestion Modale Utilisateur (CRÉATION + ÉDITION)
+const showUserDialog = ref(false)
+const isEditMode = ref(false)
+const userFormModel = ref({
+  id: -1,
+  username: '',
+  email: '',
+  password: '',
+  is_admin: false,
+  active: true,
+})
+
+const openCreateUser = () => {
+  isEditMode.value = false
+  userFormModel.value = {
+    id: -1,
+    username: '',
+    email: '',
+    password: '',
+    is_admin: false,
+    active: true,
+  }
+  showUserDialog.value = true
+}
+
+const openEditUser = (user: any) => {
+  isEditMode.value = true
+  userFormModel.value = { ...user, password: '' }
+  showUserDialog.value = true
+}
+
+const handleUserSubmit = (userData: any) => {
+  if (isEditMode.value) {
+    const index = users.value.findIndex(u => u.id === userData.id)
+    if (index !== -1) {
+      users.value[index] = { ...users.value[index], ...userData }
+      console.log('✔️ Utilisateur modifié', userData)
+    }
+  } else {
+    const newId = users.value.length + 1
+    users.value.push({ ...userData, id: newId })
+    console.log('➕ Utilisateur créé', userData)
+  }
+  closeUserDialog()
+}
+
+const closeUserDialog = () => {
+  showUserDialog.value = false
+  isEditMode.value = false
+}
+
+// Toggle actif/inactif
+const toggleUser = (user: any) => {
+  user.active = !user.active
+}
+
+// ================ INFO =======================
+
+const infoHeaders = [
+  { title: 'Titre', key: 'content_label' },
+  { title: 'Contenu', key: 'body' },
+  { title: 'Media', key: 'media_content' },
+  { title: 'Actions', key: 'actions', sortable: false },
+]
+
+const informations = ref([
+  {
+    content_label: "L'importance de la santé mentale",
+    body: "La santé mentale est primordiale car elle sous-tend notre bien-être global...",
+    media_content: 'info0.png',
+    visible: true,
+    get active() { return this.visible },
+    set active(val) { this.visible = val }
+  },
+  {
+    content_label: "Les bienfaits de la respiration",
+    body: "La respiration profonde permet de réduire le stress...",
+    media_content: 'info1.jpg',
+    visible: true,
+    get active() { return this.visible },
+    set active(val) { this.visible = val }
+  }
+]) 
+
+const deleteInformation = (item: any) => {
+  selectedItem.value = item
+  showDeleteDialog.value = true
+}
+const toggleInformation = (item: any) => {
+  item.active = !item.active
+}
+
+const showInfoDialog = ref(false)
+const isEditingInfo = ref(false)
+const editedInfo = ref({
+  content_label: '',
+  body: '',
+  media_content: '',
+  visible: true
+})
+
+const openCreateInfo = () => {
+  isEditingInfo.value = false
+  editedInfo.value = {
+    content_label: '',
+    body: '',
+    media_content: '',
+    visible: true
+  }
+  showInfoDialog.value = true
+}
+
+const editInformation = (item: any) => {
+  isEditingInfo.value = true
+  editedInfo.value = { ...item }
+  showInfoDialog.value = true
+}
+
+const saveInfo = (data: any) => {
+  if (isEditingInfo.value) {
+    const index = informations.value.findIndex(i => i.content_label === data.content_label)
+    if (index !== -1) {
+      informations.value[index] = { ...data }
+    }
+  } else {
+    informations.value.push({ ...data })
+  }
+  showInfoDialog.value = false
+}
+
+// ============== RELAX ACTIVITY ======================
+
+const activityHeaders = [
+  { title: 'Titre', key: 'activity_label' },
+  { title: 'Contenu', key: 'content' },
+  { title: 'Catégorie', key: 'category' },
+  { title: 'Type', key: 'type' },
+  { title: 'Media', key: 'media_activity' },
+  { title: 'Actions', key: 'actions', sortable: false },
+]
+
+const activities = ref([
+  {
+    activity_label: "Yoga doux",
+    content: "Série de mouvements lents qui relâchent les tensions.",
+    category: "détente",
+    type: "physique",
+    media_activity: 'yoga.jpg',
+    is_active: true
+  },
+  {
+    activity_label: "Méditation guidée",
+    content: "Laissez-vous porter par une voix apaisante...",
+    category: "mental",
+    type: "audio",
+    media_activity: 'meditation.jpg',
+    is_active: false
+  }
+])
+
+const deleteActivity = (item: any) => {
+  selectedItem.value = item
+  showDeleteDialog.value = true
+}
+const toggleActivity = (item: any) => {
+  item.active = !item.active
+}
+
+const showActivityDialog = ref(false)
+const isEditingActivity = ref(false)
+const editedActivity = ref({
+  activity_label: '',
+  content: '',
+  category: '',
+  type: '',
+  media_activity: '',
+  is_active: true
+})
+
+const openCreateActivity = () => {
+  isEditingActivity.value = false
+  editedActivity.value = {
+    activity_label: '',
+    content: '',
+    category: '',
+    type: '',
+    media_activity: '',
+    is_active: true
+  }
+  showActivityDialog.value = true
+}
+
+const editActivity = (item: any) => {
+  isEditingActivity.value = true
+  editedActivity.value = { ...item }
+  showActivityDialog.value = true
+}
+
+const saveActivity = (data: any) => {
+  if (isEditingActivity.value) {
+    const index = activities.value.findIndex(a => a.activity_label === data.activity_label)
+    if (index !== -1) activities.value[index] = { ...data }
+  } else {
+    activities.value.push({ ...data })
+  }
+  showActivityDialog.value = false
+}
+
+
+
+</script>
+
+<style scoped>
+.admin-dashboard {
+  background-image: url('@/assets/images/background.jpg');
+  background-size: cover;
+  min-height: 100vh;
+}
+
+.admin-card {
+  
+  cursor: pointer;
+  border-radius: 16px;
+  transition: transform 0.3s ease;
+  background-color: white;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+</style>
