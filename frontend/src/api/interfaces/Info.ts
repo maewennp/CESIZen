@@ -4,4 +4,5 @@ export interface Info {
   body: string
   media_content?: string
   created_at: string
+  visible?: boolean
 }

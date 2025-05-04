@@ -141,21 +141,21 @@ class InfoModel
     }
 
     public function toggleVisibility($id_content)
-{
-    try {
-        // inverse la visibilité : visible = NOT visible
-        $stmt = $this->pdo->prepare("
-            UPDATE {$this->table} 
-            SET visible = NOT visible 
-            WHERE id_content = :id_content
-        ");
-        $stmt->execute([':id_content' => $id_content]);
-        return $stmt->rowCount() > 0; // true si au moins une ligne modifiée
-    } catch (PDOException $e) {
-        error_log("Erreur SQL dans toggleVisibility: " . $e->getMessage());
-        return false;
+    {
+        try {
+            // inverse la visibilité : visible = NOT visible
+            $stmt = $this->pdo->prepare("
+                UPDATE {$this->table} 
+                SET visible = NOT visible 
+                WHERE id_content = :id_content
+            ");
+            $stmt->execute([':id_content' => $id_content]);
+            return $stmt->rowCount() > 0; // true si au moins une ligne modifiée
+        } catch (PDOException $e) {
+            error_log("Erreur SQL dans toggleVisibility: " . $e->getMessage());
+            return false;
+        }
     }
-}
 }
 
 ?>

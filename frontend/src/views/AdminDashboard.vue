@@ -43,8 +43,8 @@
           v-else-if="selectedSection === 'informations'"
           title="Gestion des informations"
           :headers="infoHeaders"
-          :items="informations"
-          :item-key="'content_label'"
+          :items="infos"
+          :item-key="'id_content'"
           :show-toggle="true"
           @edit="editInformation"
           @delete="deleteInformation"
@@ -94,7 +94,7 @@
           <v-card-text>
             <InfoForm
               :model-value="editedInfo"
-              @submit="saveInfo"
+              @submit="handleInfoSubmit"
               @cancel="showInfoDialog = false"
             />
           </v-card-text>
@@ -148,6 +148,8 @@ import RelaxActivityForm from '@/components/RelaxActivityForm.vue'
 import { useUserStore } from '@/stores/userStore'
 import { userService } from '@/api/services/userService'
 import type { ExtendedUser } from '@/api/interfaces/User'
+import type { Info } from '@/api/interfaces/Info'
+import { infoService } from '@/api/services/infoService'
 
 // ================  ADMIN - grid principal =================
 
@@ -183,6 +185,31 @@ const selectSection = (key: string) => {
   selectedSection.value = key
 }
 
+const confirmDelete = async () => {
+  if (!token.value || !selectedItem.value) {
+    alert('Token manquant ou élément non sélectionné')
+    return
+  }
+  try {
+    if (selectedSection.value === 'users') {
+      await userService.deleteUser(token.value, selectedItem.value.id_user)
+      users.value = users.value.filter(u => u.id_user !== selectedItem.value.id_user)
+    } else if (selectedSection.value === 'informations') {
+      await infoService.delete(selectedItem.value.id_content, token.value)
+      infos.value = infos.value.filter(info => info.id_content !== selectedItem.value.id_content)
+    } 
+    // else if (selectedSection.value === 'relaxations') {
+    //   await relaxActivityService.delete(selectedItem.value.id_activity, token.value)
+    //   relaxations.value = relaxations.value.filter(a => a.id_activity !== selectedItem.value.id_activity)
+    // }
+    showDeleteDialog.value = false
+    selectedItem.value = null
+  } catch (err: any) {
+    alert(err.response?.data?.error || "Erreur lors de la suppression")
+  }
+}
+
+
 // =================   USER =======================
 const users = ref<ExtendedUser[]>([]) // Liste des utilisateurs
 
@@ -212,20 +239,20 @@ const deleteUser = (user: any) => {
   showDeleteDialog.value = true
 }
 
-const confirmDelete = async () => {
-  try {
-    if (!token.value) {
-      alert('Token manquant, veuillez vous reconnecter')
-      return
-    }
-    await userService.deleteUser(token.value, selectedItem.value.id_user)
-    users.value = users.value.filter(u => u.id_user !== selectedItem.value.id_user)
-    showDeleteDialog.value = false
-    selectedItem.value = null
-  } catch (err: any) {
-    alert(err.response?.data?.error || "Erreur lors de la suppression")
-  }
-}
+// const confirmDelete = async () => {
+//   try {
+//     if (!token.value) {
+//       alert('Token manquant, veuillez vous reconnecter')
+//       return
+//     }
+//     await userService.deleteUser(token.value, selectedItem.value.id_user)
+//     users.value = users.value.filter(u => u.id_user !== selectedItem.value.id_user)
+//     showDeleteDialog.value = false
+//     selectedItem.value = null
+//   } catch (err: any) {
+//     alert(err.response?.data?.error || "Erreur lors de la suppression")
+//   }
+// }
 
 // Gestion Modale Utilisateur (CRÉATION + ÉDITION)
 const showUserDialog = ref(false)
@@ -308,12 +335,34 @@ const toggleUser = async (user: ExtendedUser) => {
 
 // ================ INFO =======================
 
+const infos = ref<Info[]>([])
+const loadingInfos = ref(false)
+const errorInfos = ref('')
+
 const infoHeaders = [
+  { title: 'ID', key: 'id_content' },
   { title: 'Titre', key: 'content_label' },
   { title: 'Contenu', key: 'body' },
-  { title: 'Media', key: 'media_content' },
+  { title: 'Image', key: 'media_content' },
+  { title: 'Visible', key: 'visible' },
+  { title: 'Créé le', key: 'created_at' },
   { title: 'Actions', key: 'actions', sortable: false },
 ]
+
+onMounted(async () => {
+  loadingInfos.value = true
+  try {
+    if (token.value) {
+      infos.value = await infoService.adminGetAll(token.value)
+    } else {
+      errorInfos.value = "Token d'authentification manquant"
+    }
+  } catch (e: any) {
+    errorInfos.value = e.message || "Erreur lors du chargement des informations"
+  } finally {
+    loadingInfos.value = false
+  }
+})
 
 const informations = ref([
   {
@@ -338,13 +387,21 @@ const deleteInformation = (item: any) => {
   selectedItem.value = item
   showDeleteDialog.value = true
 }
-const toggleInformation = (item: any) => {
-  item.active = !item.active
+
+const toggleInformation = async (item: Info) => {
+  if (!token.value) return
+  try {
+    await infoService.toggleVisibility(item.id_content, token.value)
+    item.visible = !item.visible
+  } catch (e) {
+    alert("Erreur lors du changement de visibilité")
+  }
 }
 
 const showInfoDialog = ref(false)
 const isEditingInfo = ref(false)
 const editedInfo = ref({
+  id_content: -1,
   content_label: '',
   body: '',
   media_content: '',
@@ -354,6 +411,7 @@ const editedInfo = ref({
 const openCreateInfo = () => {
   isEditingInfo.value = false
   editedInfo.value = {
+    id_content: -1,
     content_label: '',
     body: '',
     media_content: '',
@@ -368,16 +426,40 @@ const editInformation = (item: any) => {
   showInfoDialog.value = true
 }
 
-const saveInfo = (data: any) => {
-  if (isEditingInfo.value) {
-    const index = informations.value.findIndex(i => i.content_label === data.content_label)
-    if (index !== -1) {
-      informations.value[index] = { ...data }
+const handleInfoSubmit = async (formData: any) => {
+  try {
+    if (!token.value) {
+      alert('Token manquant, veuillez vous reconnecter')
+      return
     }
-  } else {
-    informations.value.push({ ...data })
+    if (isEditingInfo.value) {
+      // Modification
+      const updatedData = { ...formData, id_content: editedInfo.value.id_content }
+      await infoService.update(updatedData, token.value)
+      // Mets à jour la liste locale
+      const idx = infos.value.findIndex(i => i.id_content === updatedData.id_content)
+      if (idx !== -1) infos.value[idx] = { ...infos.value[idx], ...updatedData }
+    } else { // Création
+      const result = await infoService.create(formData, token.value)
+      if (result.error) {
+        alert(result.error)
+        return
+      }
+      // Ajoute la nouvelle info à la liste locale avec l'id retourné
+      infos.value.push({
+        id_content: Number(result.id_content),
+        content_label: formData.content_label,
+        body: formData.body,
+        media_content: formData.media_content || '',
+        visible: formData.visible ?? true,
+        created_at: new Date().toISOString(), // ou récupère la date côté API si possible
+      })
+    }
+    showInfoDialog.value = false
+    isEditingInfo.value = false
+  } catch (err: any) {
+    alert(err.response?.data?.error || "Erreur lors de la modification")
   }
-  showInfoDialog.value = false
 }
 
 // ============== RELAX ACTIVITY ======================

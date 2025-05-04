@@ -19,6 +19,7 @@
           <v-carousel-item
             v-for="(info, index) in contentPages"
             :key="info.id_content"
+            @click="goTo('/informations')"
           >
             <div class="carousel-item-wrapper">
               <v-card class="mx-auto info-card" elevation="4">
@@ -61,7 +62,7 @@
         <h2 class="text-h4 text-center mb-6">Modules proposés</h2>
         <v-row justify="center" align="center" class="modules-grid" dense>
           <v-col
-            v-for="module in modules"
+            v-for="module in displayedModules"
             :key="module.label"
             cols="6"
             sm="6"
@@ -94,18 +95,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import ModuleComingSoon from '@/components/ModuleComingSoon.vue'
 import { useModuleComingSoon } from '@/stores/useModuleComingSoon'
+import { useUserStore } from '@/stores/userStore'
 
 const { mdAndUp } = useDisplay()
 
 const router = useRouter()
+const userStore = useUserStore()
+const isAuthenticated = computed(() => userStore.isAuthenticated)
+
 const currentSlide = ref(0)
 
 const { isOpen, moduleName, openModal, closeModal } = useModuleComingSoon()
+
+const goTo = (route: string) => {
+  router.push(route)
+}
 
 // ===================== INFOS - CARROUSEL =====================================
 
@@ -142,11 +151,15 @@ const goToModule = (route: string) => {
   router.push(route)
 }
 
+const displayedModules = computed(() => {
+  return modules.filter(module => !module.authRequired || userStore.isAuthenticated)
+})
+
 const modules = [
   { label: 'Activités de relaxation', route: '/relax', icon: 'mdi-spa', available: true },
   { label: 'Exercice de respiration', route: '/breathing', icon: 'mdi-weather-windy', available: true },
   { label: 'Diagnostic de stress', route: '/diagnostic', icon: 'mdi-heart-pulse', available: false },
-  { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline', available: false },
+  { label: "Tracker d'émotion", route: '/tracker', icon: 'mdi-emoticon-outline', available: false, authRequired: true },
 ]
 
 // ================== MODALE COMING SOON ===========================

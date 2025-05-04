@@ -5,7 +5,7 @@
         <div class="login-wrapper">
           <!-- Logo positionné au-dessus -->
           <v-avatar size="150" class="logo-avatar">
-            <v-img src="/logo.png" alt="Logo CESIZen" cover />
+            <v-img src="/logo.png" alt="Logo CESIZen" cover @click="goTo('/')" />
           </v-avatar>
 
           <!-- Carte de connexion -->
@@ -122,6 +122,10 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const userStore = useUserStore()
+
+const goTo = (route: string) => {
+  router.push(route)
+}
 
 const loginForm = ref({
   email: '',
