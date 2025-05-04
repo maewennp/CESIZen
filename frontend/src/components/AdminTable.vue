@@ -48,10 +48,10 @@
             <v-icon
               v-bind="props"
               small
-              :color="item.active ? 'green' : 'grey'"
+              :color="item.is_active ? 'green' : 'grey'"
               @click="$emit('toggle', item)"
             >
-              {{ item.active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off' }}
+              {{ item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off' }}
             </v-icon>
           </template>
         </v-tooltip>

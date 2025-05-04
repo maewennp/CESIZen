@@ -197,4 +197,28 @@ class UsersControllers
         return ["message" => "Mot de passe modifié avec succès"];
     }
 
+    public function adminCreateUser($token, $data)
+{
+    $auth = $this->checkAuth($token);
+    if (isset($auth->error)) {
+        return ["error" => $auth->error];
+    }
+    if (!($auth->is_admin ?? false)) {
+        return ["error" => "Accès réservé aux administrateurs"];
+    }
+
+    // Appelle la méthode du modèle pour créer l'utilisateur
+    $result = $this->userModel->AdminCreateUser($data);
+    if (isset($result['error'])) {
+        return ["error" => $result['error']];
+    }
+
+    // Retourne le profil créé
+    $createdUser = $this->userModel->getUserByEmail($data['email']);
+    return [
+        "message" => "Utilisateur créé avec succès",
+        "profile" => $createdUser
+    ];
+}
+
 }

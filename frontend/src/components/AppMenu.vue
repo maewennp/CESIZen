@@ -135,7 +135,6 @@
         <span>Déconnexion</span>
       </v-list-item>
         
-      <pre>{{ userStore.user }}</pre>
     </v-navigation-drawer>
   </div>
 

@@ -157,10 +157,10 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-const user = ref({
-  username: '',
-  email: '',
-})
+// const user = ref({
+//   username: '',
+//   email: '',
+// })
 
 onMounted(async () => {
   if (!userStore.user && userStore.token) {
@@ -207,11 +207,18 @@ const openEditDialog = () => {
 const saveUserInfos = async () => {
   try {
     if (!token.value || !userStore.user) return
-    const payload = {
-      ...editedUser.value,
-      id_user: userStore.user.id_user 
+    const updatedData: any = {
+      id_user: userStore.user.id_user,
+      username: editedUser.value.username,
+      email: editedUser.value.email,
+      is_admin: editedUser.value.is_admin 
     }
-    const response = await userService.updateProfile(token.value as string, payload)
+
+    // On ajoute password SEULEMENT s'il est non vide
+    if (editedUser.value.password && editedUser.value.password.trim() !== '') {
+      updatedData.password = editedUser.value.password
+    }
+    const response = await userService.updateProfile(token.value as string, updatedData)
 
     userStore.setUser(response.profile)
     showEditDialog.value = false

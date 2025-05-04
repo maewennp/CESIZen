@@ -35,6 +35,8 @@
       v-model="localModel.is_admin"
       label="Administrateur"
       color="darkprimary"
+      :true-value="true"
+      :false-value="false"
     />
 
     <v-card-actions class="justify-end mt-4">

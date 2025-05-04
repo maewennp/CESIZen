@@ -5,3 +5,8 @@ export interface User {
   password?: string
   is_admin: boolean
 }
+
+export interface ExtendedUser extends User {
+  is_active?: boolean
+  created_at?: string
+}

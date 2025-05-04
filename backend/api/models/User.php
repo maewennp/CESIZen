@@ -71,7 +71,15 @@ class User
                     }
                 }
 
+                if ($field === 'is_admin') {
+                    $value = $value ? 1 : 0; 
+                }
+
                 if ($field === 'password') {
+                    // Ne pas mettre à jour si le mot de passe est vide ou null
+                    if (empty($value)) {
+                        continue; // ignore ce champ
+                    }
                     $value = password_hash($value, PASSWORD_BCRYPT);
                 }
 
@@ -269,6 +277,34 @@ class User
         } catch (PDOException $e) {
             error_log("Erreur SQL: " . $e->getMessage());
             return null;
+        }
+    }
+
+    public function AdminCreateUser($data)
+    {
+        try {
+            // Vérifie unicité email et username
+            if ($this->getUserByEmail($data['email'])) {
+                return ["error" => "Email déjà utilisé"];
+            }
+            if ($this->getUserByUsername($data['username'])) {
+                return ["error" => "Nom d'utilisateur déjà pris"];
+            }
+
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO {$this->table} (username, email, password, is_admin, is_active, created_at)
+                VALUES (:username, :email, :password, :is_admin, 1, NOW())"
+            );
+            $stmt->execute([
+                ':username' => $data['username'],
+                ':email' => $data['email'],
+                ':password' => password_hash($data['password'], PASSWORD_BCRYPT),
+                ':is_admin' => $data['is_admin'] ? 1 : 0,
+            ]);
+            return ["message" => "Utilisateur créé"];
+        } catch (PDOException $e) {
+            error_log("Erreur SQL dans createUser: " . $e->getMessage());
+            return ["error" => "Erreur lors de la création"];
         }
     }
 }

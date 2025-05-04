@@ -29,7 +29,10 @@
           title="Gestion des utilisateurs"
           :headers="userHeaders"
           :items="users"
+          item-key="id_user"
           :show-toggle="true"
+          :show-edit="true"
+          :show-delete="true"
           @edit="openEditUser"
           @delete="deleteUser"
           @toggle="toggleUser"
@@ -137,13 +140,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import AdminTable from '@/components/AdminTable.vue'
 import UserForm from '@/components/UserForm.vue'
 import InfoForm from '@/components/InfoForm.vue'
 import RelaxActivityForm from '@/components/RelaxActivityForm.vue'
+import { useUserStore } from '@/stores/userStore'
+import { userService } from '@/api/services/userService'
+import type { ExtendedUser } from '@/api/interfaces/User'
 
 // ================  ADMIN - grid principal =================
+
+const userStore = useUserStore()
+const token = computed(() => userStore.token)
 
 const sections = [
   {
@@ -175,17 +184,27 @@ const selectSection = (key: string) => {
 }
 
 // =================   USER =======================
+const users = ref<ExtendedUser[]>([]) // Liste des utilisateurs
 
 const userHeaders = [
+  { title: 'ID', key: 'id_user' },
   { title: 'Nom d’utilisateur', key: 'username' },
   { title: 'Email', key: 'email' },
-  { title: 'Actions', key: 'actions', sortable: false },
+  { title: 'Admin', key: 'is_admin' },
+  { title: 'Actif', key: 'is_active' },
+  { title: 'Créé le', key: 'created_at' },
+  { title: 'Actions', key: 'actions', sortable: false }
 ]
 
-const users = ref([
-  { id: 1, username: 'zen_user', email: 'zen@example.com', is_admin: false, active: true },
-  { id: 2, username: 'admin_user', email: 'admin@example.com', is_admin: true, active: false }
-])
+onMounted(async () => {
+  if (token.value) {
+    try {
+      users.value = await userService.getAllUsers(token.value)
+    } catch (e) {
+      console.error('Erreur chargement utilisateurs', e)
+    }
+  }
+})
 
 // Gestion suppression Utilisateur
 const deleteUser = (user: any) => {
@@ -193,10 +212,19 @@ const deleteUser = (user: any) => {
   showDeleteDialog.value = true
 }
 
-const confirmDelete = () => {
-  users.value = users.value.filter(u => u.id !== selectedItem.value.id)
-  showDeleteDialog.value = false
-  selectedItem.value = null
+const confirmDelete = async () => {
+  try {
+    if (!token.value) {
+      alert('Token manquant, veuillez vous reconnecter')
+      return
+    }
+    await userService.deleteUser(token.value, selectedItem.value.id_user)
+    users.value = users.value.filter(u => u.id_user !== selectedItem.value.id_user)
+    showDeleteDialog.value = false
+    selectedItem.value = null
+  } catch (err: any) {
+    alert(err.response?.data?.error || "Erreur lors de la suppression")
+  }
 }
 
 // Gestion Modale Utilisateur (CRÉATION + ÉDITION)
@@ -226,23 +254,37 @@ const openCreateUser = () => {
 
 const openEditUser = (user: any) => {
   isEditMode.value = true
-  userFormModel.value = { ...user, password: '' }
+  userFormModel.value = { 
+    ...user, 
+    password: '',
+    is_admin: Boolean(user.is_admin),
+    is_active: user.is_active
+  }
   showUserDialog.value = true
 }
 
-const handleUserSubmit = (userData: any) => {
-  if (isEditMode.value) {
-    const index = users.value.findIndex(u => u.id === userData.id)
-    if (index !== -1) {
-      users.value[index] = { ...users.value[index], ...userData }
-      console.log('✔️ Utilisateur modifié', userData)
+const handleUserSubmit = async (userData: any) => {
+  try {
+    if (!token.value) {
+      alert('Token manquant, veuillez vous reconnecter')
+      return
     }
-  } else {
-    const newId = users.value.length + 1
-    users.value.push({ ...userData, id: newId })
-    console.log('➕ Utilisateur créé', userData)
+    if (isEditMode.value) {
+      // Modification
+      userData.is_admin = userData.is_admin ? 1 : 0
+      const response = await userService.updateUser(token.value, userData.id_user, userData)
+      // Mets à jour la liste locale
+      const idx = users.value.findIndex(u => u.id_user === userData.id_user)
+      if (idx !== -1) users.value[idx] = response.profile
+    } else {
+      // Création
+      const response = await userService.createUser(token.value, userData)
+      users.value.unshift(response.profile)
+    }
+    closeUserDialog()
+  } catch (err: any) {
+    alert(err.response?.data?.error || "Erreur lors de l'opération")
   }
-  closeUserDialog()
 }
 
 const closeUserDialog = () => {
@@ -251,8 +293,17 @@ const closeUserDialog = () => {
 }
 
 // Toggle actif/inactif
-const toggleUser = (user: any) => {
-  user.active = !user.active
+const toggleUser = async (user: ExtendedUser) => {
+  try {
+    if (!token.value) {
+      alert('Token manquant, veuillez vous reconnecter')
+      return
+    }
+    const response = await userService.toggleUser(token.value, user.id_user)
+    user.is_active = response.is_active // Mets à jour l'état localement
+  } catch (err: any) {
+    alert(err.response?.data?.error || "Erreur lors du changement d'état")
+  }
 }
 
 // ================ INFO =======================

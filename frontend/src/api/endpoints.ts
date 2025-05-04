@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
     GET_ONE: '/users/getOneUser.php',
     UPDATE: '/users/updateUser.php',
     DELETE: '/users/deleteUser.php',
+    CREATE: '/users/createUser.php',
     TOGGLE_ACTIVE: '/users/toggleIsActiveUser.php',
     CHANGE_PASSWORD:'/users/changePassword.php',
   },
