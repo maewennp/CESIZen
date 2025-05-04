@@ -56,19 +56,13 @@
 </template>
 
 <script setup lang="ts">
+import type { RelaxActivity } from '@/api/interfaces/RelaxActivity';
 import { defineEmits, defineProps, ref, watch } from 'vue'
 
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits(['submit', 'cancel', 'update:modelValue'])
 
 const props = defineProps<{
-  modelValue: {
-    activity_label: string
-    content: string
-    category: string
-    type: string
-    media_activity: string
-    is_active: boolean
-  }
+  modelValue: RelaxActivity
 }>()
 
 const formValid = ref(false)

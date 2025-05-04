@@ -150,6 +150,8 @@ import { userService } from '@/api/services/userService'
 import type { ExtendedUser } from '@/api/interfaces/User'
 import type { Info } from '@/api/interfaces/Info'
 import { infoService } from '@/api/services/infoService'
+import { relaxActivityService } from '@/api/services/relaxActivityService'
+import type { RelaxActivity } from '@/api/interfaces/RelaxActivity'
 
 // ================  ADMIN - grid principal =================
 
@@ -197,11 +199,10 @@ const confirmDelete = async () => {
     } else if (selectedSection.value === 'informations') {
       await infoService.delete(selectedItem.value.id_content, token.value)
       infos.value = infos.value.filter(info => info.id_content !== selectedItem.value.id_content)
-    } 
-    // else if (selectedSection.value === 'relaxations') {
-    //   await relaxActivityService.delete(selectedItem.value.id_activity, token.value)
-    //   relaxations.value = relaxations.value.filter(a => a.id_activity !== selectedItem.value.id_activity)
-    // }
+    } else if (selectedSection.value === 'relaxations') {
+      await relaxActivityService.delete(selectedItem.value.id_activity, token.value)
+      activities.value = activities.value.filter(a => a.id_activity !== selectedItem.value.id_activity)
+    }
     showDeleteDialog.value = false
     selectedItem.value = null
   } catch (err: any) {
@@ -464,56 +465,91 @@ const handleInfoSubmit = async (formData: any) => {
 
 // ============== RELAX ACTIVITY ======================
 
+const activities = ref<RelaxActivity[]>([])
+const loadingActivities = ref(false)
+const errorActivities = ref('')
+
 const activityHeaders = [
+  { title: 'ID', key: 'id_activity'},
   { title: 'Titre', key: 'activity_label' },
   { title: 'Contenu', key: 'content' },
   { title: 'Catégorie', key: 'category' },
   { title: 'Type', key: 'type' },
   { title: 'Media', key: 'media_activity' },
+  { title: 'Active', key: 'is_active' },
   { title: 'Actions', key: 'actions', sortable: false },
 ]
 
-const activities = ref([
-  {
-    activity_label: "Yoga doux",
-    content: "Série de mouvements lents qui relâchent les tensions.",
-    category: "détente",
-    type: "physique",
-    media_activity: 'yoga.jpg',
-    is_active: true
-  },
-  {
-    activity_label: "Méditation guidée",
-    content: "Laissez-vous porter par une voix apaisante...",
-    category: "mental",
-    type: "audio",
-    media_activity: 'meditation.jpg',
-    is_active: false
-  }
-])
+// const activities = ref([
+//   {
+//     activity_label: "Yoga doux",
+//     content: "Série de mouvements lents qui relâchent les tensions.",
+//     category: "détente",
+//     type: "physique",
+//     media_activity: 'yoga.jpg',
+//     is_active: true
+//   },
+//   {
+//     activity_label: "Méditation guidée",
+//     content: "Laissez-vous porter par une voix apaisante...",
+//     category: "mental",
+//     type: "audio",
+//     media_activity: 'meditation.jpg',
+//     is_active: false
+//   }
+// ])
 
-const deleteActivity = (item: any) => {
+onMounted(async () => {
+  loadingActivities.value = true
+  try {
+    if (token.value) {
+      const data = await relaxActivityService.adminGetAll(token.value)
+      activities.value = data.map((item: any) => ({
+        ...item,
+        is_active: Boolean(item.is_active),
+      })) as RelaxActivity[]
+    } else {
+      errorActivities.value = "Token d'authentification manquant"
+    }
+  } catch (e: any) {
+    errorActivities.value = e.message || "Erreur lors du chargement des activités"
+  } finally {
+    loadingActivities.value = false
+  }
+})
+
+const deleteActivity = (item: RelaxActivity) => {
   selectedItem.value = item
   showDeleteDialog.value = true
 }
-const toggleActivity = (item: any) => {
-  item.active = !item.active
+
+const toggleActivity = async (item: RelaxActivity) => {
+  if (!token.value) return
+  try {
+    await relaxActivityService.toggleActive(item.id_activity, token.value)
+    item.is_active = !item.is_active
+  } catch (e) {
+    alert("Erreur lors du changement de visibilité")
+  }
 }
 
 const showActivityDialog = ref(false)
 const isEditingActivity = ref(false)
-const editedActivity = ref({
+const editedActivity = ref<RelaxActivity>({
+  id_activity: -1,
   activity_label: '',
   content: '',
   category: '',
   type: '',
-  media_activity: '',
-  is_active: true
+  media_activity: '', 
+  is_active: true,
+  created_at: undefined,
 })
 
 const openCreateActivity = () => {
   isEditingActivity.value = false
   editedActivity.value = {
+    id_activity: 0,
     activity_label: '',
     content: '',
     category: '',
@@ -524,20 +560,42 @@ const openCreateActivity = () => {
   showActivityDialog.value = true
 }
 
-const editActivity = (item: any) => {
+const editActivity = (item: RelaxActivity) => {
   isEditingActivity.value = true
-  editedActivity.value = { ...item }
+  editedActivity.value = { 
+    ...item,
+    media_activity: item.media_activity ?? '',
+   }
   showActivityDialog.value = true
 }
 
-const saveActivity = (data: any) => {
-  if (isEditingActivity.value) {
-    const index = activities.value.findIndex(a => a.activity_label === data.activity_label)
-    if (index !== -1) activities.value[index] = { ...data }
-  } else {
-    activities.value.push({ ...data })
+const saveActivity = async (data: RelaxActivity) => {
+  if (!token.value) {
+    alert("Token manquant, veuillez vous reconnecter")
+    return
   }
-  showActivityDialog.value = false
+  try {
+    if (isEditingActivity.value) {
+      // Modification
+      const payload = { ...data, id_activity: editedActivity.value.id_activity }
+      await relaxActivityService.update(payload, token.value)
+      const index = activities.value.findIndex(a => a.id_activity === payload.id_activity)
+      if (index !== -1) {
+        activities.value[index] = { ...activities.value[index], ...payload }
+      }
+    } else {
+      const result = await relaxActivityService.create(data, token.value)
+      if (result.error) {
+        alert(result.error)
+        return
+      }
+      activities.value.push({ ...data })
+    }
+    showActivityDialog.value = false
+    isEditingActivity.value = false
+  } catch (e: any) {
+    alert(e.response?.data?.error || "Erreur lors de l'enregistrement")
+  }
 }
 
 

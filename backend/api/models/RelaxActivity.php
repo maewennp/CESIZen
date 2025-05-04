@@ -82,35 +82,35 @@ class RelaxActivity
      * Modifier une activité existante (admin)
      */
     public function updateRelaxActivity($id_activity, $data)
-{
-    try {
-        $stmt = $this->pdo->prepare("
-            UPDATE {$this->table}
-            SET 
-                activity_label = :activity_label,
-                content = :content,
-                category = :category,
-                type = :type,
-                media_activity = :media_activity,
-                is_active = :is_active
-            WHERE id_activity = :id_activity
-        ");
-        $stmt->execute([
-            ':activity_label' => $data['activity_label'],
-            ':content' => $data['content'],
-            ':category' => $data['category'],
-            ':type' => $data['type'],
-            ':media_activity' => $data['media_activity'] ?? null,
-            ':is_active' => $data['is_active'] ?? 1,
-            ':id_activity' => $id_activity,
-        ]);
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE {$this->table}
+                SET 
+                    activity_label = :activity_label,
+                    content = :content,
+                    category = :category,
+                    type = :type,
+                    media_activity = :media_activity,
+                    is_active = :is_active
+                WHERE id_activity = :id_activity
+            ");
+            $stmt->execute([
+                ':activity_label' => $data['activity_label'],
+                ':content' => $data['content'],
+                ':category' => $data['category'],
+                ':type' => $data['type'],
+                ':media_activity' => $data['media_activity'] ?? null,
+                ':is_active' => $data['is_active'] ?? 1,
+                ':id_activity' => $id_activity,
+            ]);
 
-        return $stmt->rowCount(); // Nombre de lignes modifiées
-    } catch (PDOException $e) {
-        error_log("Erreur SQL dans updateRelaxActivity: " . $e->getMessage());
-        return null;
+            return $stmt->rowCount(); // Nombre de lignes modifiées
+        } catch (PDOException $e) {
+            error_log("Erreur SQL dans updateRelaxActivity: " . $e->getMessage());
+            return null;
+        }
     }
-}
 
     /**
      * Supprimer une activité (admin)
