@@ -9,6 +9,11 @@ export const API_ENDPOINTS = {
   USERS: {
     GET_PROFILE: '/users/profile.php',
     GET_ALL: '/users/getAllUsers.php',
+    GET_ONE: '/users/getOneUser.php',
+    UPDATE: '/users/updateUser.php',
+    DELETE: '/users/deleteUser.php',
+    TOGGLE_ACTIVE: '/users/toggleIsActiveUser.php',
+    CHANGE_PASSWORD:'/users/changePassword.php',
   },
   INFO: {
     GET_ALL_VISIBLE: '/info/getAllInfos.php',

@@ -11,17 +11,17 @@
           <v-avatar size="100" class="mb-3">
             <v-img src="/logo.png" alt="Avatar" />
           </v-avatar>
-          <div class="text-subtitle-1"><strong> 👤  Username : </strong> {{ user.username }}</div>
-          <div class="text-subtitle-1 mt-1"><strong> 📧 Email : </strong> {{ user.email }}</div>
+          <div class="text-subtitle-1"><strong> 👤  Username : </strong> {{ userStore.user?.username }}</div>
+          <div class="text-subtitle-1 mt-1"><strong> 📧 Email : </strong> {{ userStore.user?.email }}</div>
         </v-card-text>
         <v-card-actions class="justify-center flex-wrap">
           <v-btn class="ma-2" color="darkprimary" border prepend-icon="mdi-account-edit"
-            @click="() => { editedUser = { ...user }; showEditDialog = true }"  
+            @click="openEditDialog"  
           >Modifier mes infos</v-btn>
           <v-btn class="ma-2" color="darkprimary" border prepend-icon="mdi-lock-reset" 
             @click="showPasswordDialog = true"
           >Changer mot de passe</v-btn>
-          <v-btn class="ma-2" color="error" prepend-icon="mdi-logout">Se déconnecter</v-btn>
+          <v-btn class="ma-2" color="error" prepend-icon="mdi-logout" @click="handleLogout">Se déconnecter</v-btn>
         </v-card-actions>
       </v-card>
 
@@ -90,11 +90,22 @@
     </v-card>
   </v-dialog>
 
+  <!-- SNACKBAR SUCCÈS -->
+  <v-snackbar v-model="showSuccess" color="green" timeout="3000">
+    Profil mis à jour avec succès !
+  </v-snackbar>
+
+  <!-- SNACKBAR ERREUR -->
+  <v-snackbar v-model="showError" color="red" timeout="3000">
+    Une erreur est survenue lors de la mise à jour.
+  </v-snackbar>
+
   <!-- Modale changer le mot de passe -->
   <v-dialog v-model="showPasswordDialog" max-width="400" persistent>
     <v-card class="pa-4" rounded="xl" elevation="8">
       <v-card-title class="text-h6 text-center">Modifier le mot de passe</v-card-title>
       <v-card-text>
+        <v-alert v-if="passwordError" type="error" dense>{{ passwordError }}</v-alert>
         <v-text-field
           v-model="passwordForm.old"
           label="Mot de passe actuel"
@@ -131,14 +142,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
+import { userService } from '@/api/services/userService'
+import type { User } from '@/api/interfaces/User'
 
 const router = useRouter()
+const userStore = useUserStore()
+const token = computed(() => userStore.token)
+
+const handleLogout = () => {
+  userStore.logout()
+  router.push('/login')
+}
 
 const user = ref({
-  username: 'zen_user',
-  email: 'zen@example.com',
+  username: '',
+  email: '',
+})
+
+onMounted(async () => {
+  if (!userStore.user && userStore.token) {
+    await userStore.fetchUserProfile()
+  }
 })
 
 const favoritesCount = 18
@@ -153,20 +180,53 @@ const goToHistory = () => {
 }
 
 // ================= MODALE MODIF INFOS =========================
-
+const showSuccess = ref(false)
+const showError = ref(false)
 const showEditDialog = ref(false)
+const editedUser = ref<User>({
+  id_user: 0,
+  username: '',
+  email: '',
+  password: '',
+  is_admin: false // valeur par défaut
+})
 
-const editedUser = ref({ ...user })
+const openEditDialog = () => {
+  if (userStore.user) {
+    editedUser.value = {
+      id_user: userStore.user.id_user,
+      username: userStore.user.username,
+      email: userStore.user.email,
+      password: '',
+      is_admin: userStore.user.is_admin
+    }
+    showEditDialog.value = true
+  }
+}
 
-const saveUserInfos = () => {
-  user.value = { ...editedUser.value }
-  showEditDialog.value = false
+const saveUserInfos = async () => {
+  try {
+    if (!token.value || !userStore.user) return
+    const payload = {
+      ...editedUser.value,
+      id_user: userStore.user.id_user 
+    }
+    const response = await userService.updateProfile(token.value as string, payload)
+
+    userStore.setUser(response.profile)
+    showEditDialog.value = false
+    showSuccess.value = true
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour :', error)
+    showError.value = true
+  }
 }
 
 // ================= MODALE changer Mot De Passe =========================
 
 const showPasswordDialog = ref(false)
 const passwordSuccess = ref(false)
+const passwordError = ref('')
 
 const passwordForm = ref({
   old: '',
@@ -174,20 +234,26 @@ const passwordForm = ref({
   confirm: '',
 })
 
-const savePassword = () => {
+const savePassword = async () => {
+  passwordError.value = ''
   if (passwordForm.value.new !== passwordForm.value.confirm) {
-    alert("Les mots de passe ne correspondent pas.")
+    passwordError.value = "Les mots de passe ne correspondent pas."
     return
   }
+  if (!userStore.user || !token.value) return
 
-  // ajouter requète API
-  console.log('Ancien:', passwordForm.value.old)
-  console.log('Nouveau:', passwordForm.value.new)
-
-  // Reset & close
-  showPasswordDialog.value = false
-  passwordSuccess.value = true
-  passwordForm.value = { old: '', new: '', confirm: '' }
+  try {
+    await userService.changePassword(token.value, {
+      id_user: userStore.user.id_user,
+      old_password: passwordForm.value.old,
+      new_password: passwordForm.value.new
+    })
+    showPasswordDialog.value = false
+    passwordSuccess.value = true
+    passwordForm.value = { old: '', new: '', confirm: '' }
+  } catch (error: any) {
+    passwordError.value = error.response?.data?.error || "Erreur lors du changement de mot de passe."
+  }
 }
 </script>
 

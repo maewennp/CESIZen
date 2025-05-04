@@ -49,15 +49,26 @@ class User
             $updates = [];
             $params = [':id_user' => $id_user];
 
+            // Récupérer l'utilisateur actuel
+            $currentUser = $this->getUserById($id_user);
+
             foreach ($data as $field => $value) {
                 if (!in_array($field, $allowedFields)) continue;
 
-                if ($field === 'email' && $this->getUserByEmail($value)) {
-                    return ["error" => "Email déjà utilisé"];
+                // Vérifier l'unicité de l'email uniquement si l'email a changé
+                if ($field === 'email' && $value !== $currentUser['email']) {
+                    $existingUser = $this->getUserByEmail($value);
+                    if ($existingUser && $existingUser['id_user'] != $id_user) {
+                        return ["error" => "Email déjà utilisé"];
+                    }
                 }
 
-                if ($field === 'username' && $this->getUserByUsername($value)) {
-                    return ["error" => "Nom d'utilisateur déjà pris"];
+                // Vérifier l'unicité du username uniquement si le username a changé
+                if ($field === 'username' && $value !== $currentUser['username']) {
+                    $existingUser = $this->getUserByUsername($value);
+                    if ($existingUser && $existingUser['id_user'] != $id_user) {
+                        return ["error" => "Nom d'utilisateur déjà pris"];
+                    }
                 }
 
                 if ($field === 'password') {
@@ -203,49 +214,61 @@ class User
 
 
     public function getUser($criteria)
-{
-    try {
-        if (empty($criteria)) {
-            return ["error" => "Aucun critère fourni"];
+    {
+        try {
+            if (empty($criteria)) {
+                return ["error" => "Aucun critère fourni"];
+            }
+
+            $conditions = [];
+            $params = [];
+
+            if (isset($criteria['id_user'])) {
+                $conditions[] = 'id_user = :id_user';
+                $params[':id_user'] = $criteria['id_user'];
+            }
+            if (isset($criteria['username'])) {
+                $conditions[] = 'username = :username';
+                $params[':username'] = $criteria['username'];
+            }
+            if (isset($criteria['email'])) {
+                $conditions[] = 'email = :email';
+                $params[':email'] = $criteria['email'];
+            }
+
+            if (empty($conditions)) {
+                return ["error" => "Critères invalides"];
+            }
+
+            $sql = "SELECT id_user, username, email, is_admin, is_active, created_at, updated_at 
+                    FROM users 
+                    WHERE " . implode(' OR ', $conditions) . " LIMIT 1";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                return ["error" => "Utilisateur non trouvé"];
+            }
+
+            return $user;
+        } catch (PDOException $e) {
+            error_log("Erreur SQL dans getUser: " . $e->getMessage());
+            return ["error" => "Erreur serveur"];
         }
-
-        $conditions = [];
-        $params = [];
-
-        if (isset($criteria['id_user'])) {
-            $conditions[] = 'id_user = :id_user';
-            $params[':id_user'] = $criteria['id_user'];
-        }
-        if (isset($criteria['username'])) {
-            $conditions[] = 'username = :username';
-            $params[':username'] = $criteria['username'];
-        }
-        if (isset($criteria['email'])) {
-            $conditions[] = 'email = :email';
-            $params[':email'] = $criteria['email'];
-        }
-
-        if (empty($conditions)) {
-            return ["error" => "Critères invalides"];
-        }
-
-        $sql = "SELECT id_user, username, email, is_admin, is_active, created_at, updated_at 
-                FROM users 
-                WHERE " . implode(' OR ', $conditions) . " LIMIT 1";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user) {
-            return ["error" => "Utilisateur non trouvé"];
-        }
-
-        return $user;
-    } catch (PDOException $e) {
-        error_log("Erreur SQL dans getUser: " . $e->getMessage());
-        return ["error" => "Erreur serveur"];
     }
-}
+
+    public function getUserByIdWithPassword($id_user)
+    {
+        try {
+            $stmt = $this->pdo->prepare("SELECT id_user, username, email, is_admin, password, created_at FROM {$this->table} WHERE id_user = :id_user AND deleted_at IS NULL LIMIT 1");
+            $stmt->execute([':id_user' => $id_user]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (PDOException $e) {
+            error_log("Erreur SQL: " . $e->getMessage());
+            return null;
+        }
+    }
 }

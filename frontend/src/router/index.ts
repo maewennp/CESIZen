@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useUserStore } from '@/stores/userStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,6 +50,7 @@ const router = createRouter({
       path: '/account',
       name: 'account',
       component: () => import('../views/AccountView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/favorites',
@@ -69,10 +71,23 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('@/views/AdminDashboard.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true },
+      meta: { requiresAuth: true, requiresAdmin: true }
     },
     
   ],
+})
+
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
+
+  // Si la route nécessite une auth et qu'on n'est pas connecté
+  if (to.meta.requiresAuth && !userStore.token) {
+    next('/login') // Redirige vers login
+  } else if (to.meta.requiresAdmin && !userStore.user?.is_admin) {
+    next('/')
+  } else {
+    next()
+  }
 })
 
 export default router

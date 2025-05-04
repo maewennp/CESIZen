@@ -106,7 +106,12 @@ class UsersControllers
             return ["error" => $result['error']];
         }
 
-        return ["message" => "Utilisateur mis à jour avec succès"];
+        // On retourne le profil mis à jour pour le front
+        $updatedUser = $this->userModel->getUserById($id_user);
+        return [
+            "message" => "Utilisateur mis à jour avec succès",
+            "profile" => $updatedUser
+        ];
     }
 
     public function toggleIsActiveUser($token, $id_user)
@@ -156,6 +161,40 @@ class UsersControllers
         }
 
         return $this->userModel->getUser($criteria);
+    }
+
+    public function changePasswordConnected($token, $id_user, $old_password, $new_password)
+    {
+        $auth = $this->checkAuth($token);
+        if (isset($auth->error)) {
+            return ["error" => $auth->error];
+        }
+
+        $isAdmin = $auth->is_admin ?? false;
+        $userIdFromToken = $auth->sub ?? null;
+
+        if (!$isAdmin && $userIdFromToken != $id_user) {
+            return ["error" => "Accès refusé"];
+        }
+
+        // Récupérer l'utilisateur
+        $user = $this->userModel->getUserByIdWithPassword($id_user);
+        if (!$user) {
+            return ["error" => "Utilisateur introuvable"];
+        }
+
+        // Vérifier l'ancien mot de passe (sauf admin)
+        if (!$isAdmin && !password_verify($old_password, $user['password'])) {
+            return ["error" => "Ancien mot de passe incorrect"];
+        }
+
+        // Mettre à jour le mot de passe
+        $result = $this->userModel->updateUser($id_user, ['password' => $new_password]);
+        if (isset($result['error'])) {
+            return ["error" => $result['error']];
+        }
+
+        return ["message" => "Mot de passe modifié avec succès"];
     }
 
 }

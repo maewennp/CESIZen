@@ -21,8 +21,14 @@
       <v-spacer />
        <!-- Boutons à droite -->
       <div class="d-flex align-center gap-2">
-        <v-btn icon @click="isLoggedIn ? goTo('/account') : $emit('login')">
-          <v-icon>{{ isLoggedIn ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}</v-icon>
+        <v-btn icon v-if="!userStore.isAuthenticated" @click="$emit('login')">
+          <v-icon>mdi-account</v-icon>
+        </v-btn>
+        <v-btn icon v-else-if="userStore.user && userStore.user.is_admin" @click="goTo('/admin')">
+          <v-icon>mdi-shield-account</v-icon>
+        </v-btn>
+        <v-btn icon v-else="userStore.user" @click="goTo('/account')">
+          <v-icon>mdi-account-circle</v-icon>
         </v-btn>
         <v-menu offset-y transition="slide-y-transition">
           <template #activator="{ props }">
@@ -44,6 +50,12 @@
             <v-list-item v-for="mod in filteredModules" :key="mod.route" @click="handleMenuItemClick(mod)">
               <v-icon color="darkprimary" class="mr-2">{{ mod.icon }}</v-icon>
               <span>{{ mod.label }}</span>
+            </v-list-item>
+
+            <v-divider v-if="userStore.user?.is_admin" class="my-2" />
+            <v-list-item v-if="userStore.user?.is_admin" @click="logout">
+              <v-icon class="mr-2" color="red">mdi-logout</v-icon>
+              <span>Déconnexion</span>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -70,18 +82,18 @@
           class="d-flex align-center gap-2" 
           @click="goTo('/')"
         >
-          <v-icon color="darkprimary" class="mr-2 my-4">mdi-home</v-icon>
+          <v-icon color="darkprimary" class="mr-2 my-3">mdi-home</v-icon>
           <span>Accueil</span>
         </v-list-item>
         <v-list-item 
           class="d-flex align-center gap-2" 
           @click="goTo('/informations')"
         >
-          <v-icon color="darkprimary" class="mr-2 my-4">mdi-information</v-icon>
+          <v-icon color="darkprimary" class="mr-2 my-3">mdi-information</v-icon>
           <span>Informations</span>
         </v-list-item>
 
-        <v-divider class="my-2" />
+        <v-divider class="my-1" />
         <v-list-subheader class="text-uppercase font-weight-bold text-grey">Modules</v-list-subheader>
         <v-list-item 
           v-for="mod in filteredModules" 
@@ -93,16 +105,37 @@
         </v-list-item>
       </v-list>
       <v-divider class="my-2" />
-      <v-list-item 
-        class="d-flex align-center gap-2" 
-        @click="isLoggedIn ? goTo('/account') : $emit('login')"
+      <v-list-item
+        v-if="!userStore.isAuthenticated"
+        @click="$emit('login')"
       >
-        <v-icon color="darkprimary" class="mr-2 my-4">
-          {{ isLoggedIn ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}
-        </v-icon>
-        <span>{{ isLoggedIn ? 'Mon compte' : 'Se connecter' }}</span>
+        <v-icon class="mr-2">mdi-account</v-icon>
+        <span>Se connecter</span>
+      </v-list-item>
+
+      <v-list-item
+        v-else-if="userStore.user && userStore.user.is_admin"
+        @click="goTo('/admin')"
+      >
+        <v-icon class="mr-2" color="darkprimary">mdi-shield-account</v-icon>
+        <span>Gestion Administrateur</span>
+      </v-list-item>
+
+      <v-list-item
+        v-else="userStore.user"
+        @click="goTo('/account')"
+      >
+        <v-icon class="mr-2">mdi-account-circle</v-icon>
+        <span>Mon compte</span>
       </v-list-item> 
+
+      <v-divider class="my-2" />
+      <v-list-item v-if="userStore.user?.is_admin" @click="logout" class="d-flex align-center gap-2">
+        <v-icon class="mr-2" color="red">mdi-logout</v-icon>
+        <span>Déconnexion</span>
+      </v-list-item>
         
+      <pre>{{ userStore.user }}</pre>
     </v-navigation-drawer>
   </div>
 
@@ -180,6 +213,11 @@ const handleMenuItemClick = (item: any) => {
     goTo(item.route)
   }
   
+}
+
+const logout = () => {
+  userStore.logout()
+  router.push('/login')
 }
 
 </script>

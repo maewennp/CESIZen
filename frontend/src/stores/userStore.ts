@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { userService } from '@/api/services/userService'
+import type { User } from '@/api/interfaces/User'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref<string | null>(localStorage.getItem('token'))
   const isAuthenticated = ref<boolean>(!!token.value)
-  const user = ref<{ username: string; email: string; is_admin: boolean } | null>(null)
+  //const user = ref<{ username: string; email: string; is_admin: boolean } | null>(null)
+  const user = ref<User | null>(null)
 
   // 🔐 Charger le profil à partir du token
   async function fetchUserProfile() {
@@ -36,6 +38,10 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('token')
   }
 
+  function setUser(updatedUser: User) {
+    user.value = updatedUser
+  }
+
   return {
     token,
     isAuthenticated,
@@ -43,5 +49,6 @@ export const useUserStore = defineStore('user', () => {
     setToken,
     fetchUserProfile,
     logout,
+    setUser
   }
 })
