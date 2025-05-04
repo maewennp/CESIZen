@@ -5,6 +5,7 @@
     @click="handleClick"
   >
     <v-img
+      v-if="image"
       :src="image"
       alt="Illustration"
       height="200"
@@ -53,7 +54,6 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 
-//const isFavorite = ref(false)
 const isFavorite = computed(() =>
   props.id !== undefined ? favoritesStore.isFavorite(props.id) : false
 )
@@ -61,10 +61,6 @@ const isFavorite = computed(() =>
 const handleClick = () => {
   emit('click')
 }
-
-// const toggleFavorite = () => {
-//   isFavorite.value = !isFavorite.value
-// }
 
 const toggleFavorite = () => {
   if (props.id !== undefined) {
