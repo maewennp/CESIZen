@@ -40,6 +40,7 @@ class RelaxActivityControllersTest extends TestCase
         ], $payload), $secret, 'HS256');
     }
 
+    // test admin récupère toutes les Activités de relaxation
     public function testAdminCanGetAllRelaxActivities()
     {
         $result = $this->relaxController->adminGetAllRelaxActivities($this->fakeAdminToken);
@@ -51,6 +52,7 @@ class RelaxActivityControllersTest extends TestCase
         $this->assertArrayHasKey(0, $result); // Il doit y avoir au moins une activité
     }
 
+    // test d'un non admin qui tente de créer une Activité de relaxation
     public function testNonAdminCannotCreateRelaxActivity()
     {
         $fakeData = [

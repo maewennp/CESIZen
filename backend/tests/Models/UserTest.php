@@ -16,6 +16,7 @@ class UserTest extends TestCase
         $this->userModel = new User($this->db);
     }
 
+    //test pour créer un user
     public function testCreateUserSuccess()
     {
         $username = 'testuser_' . uniqid();
@@ -29,6 +30,7 @@ class UserTest extends TestCase
         $this->assertSame('Utilisateur créé avec succès', $result['message']);
     }
 
+    // test pour get un user par son email
     public function testGetUserByEmail()
     {
         $email = 'admin@cesizen.fr'; 

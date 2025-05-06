@@ -18,7 +18,7 @@ class AuthControllersTest extends TestCase
 
     public function testLoginSuccess()
     {
-        // Utilisateur existant dans ta base (ex: admin@cesizen.fr / password123)
+        // Utilisateur existant dans la base (ex: admin@cesizen.fr / password123)
         $credentials = [
             'email' => 'admin@cesizen.fr',
             'password' => 'password123'
@@ -30,6 +30,7 @@ class AuthControllersTest extends TestCase
         $this->assertIsString($result['token']);
     }
 
+    // test pour créer un utilisateur via register
     public function testRegisterSuccess()
     {
         $data = [

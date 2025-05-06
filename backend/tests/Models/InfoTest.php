@@ -16,12 +16,13 @@ class InfoTest extends TestCase
         $this->infoModel = new InfoModel($this->db);
     }
 
+    // test pour créer une info
     public function testCreateInfoSuccess()
     {
         $data = [
             'content_label' => 'Test Info ' . uniqid(),
             'body' => 'Ceci est un test pour créer une info.',
-            'media_content' => 'https://example.com/image.jpg',
+            'media_content' => null,
             'visible' => true,
             'id_user' => 1,
         ];

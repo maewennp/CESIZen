@@ -16,6 +16,7 @@ class RelaxActivityTest extends TestCase
         $this->relaxActivityModel = new RelaxActivity($this->db);
     }
 
+    // test de création d'une activité de relaxation 
     public function testCreateRelaxActivitySuccess()
     {
         $data = [
@@ -23,7 +24,7 @@ class RelaxActivityTest extends TestCase
             'content' => 'Contenu de test pour activité',
             'category' => 'relaxation',
             'type' => 'audio',
-            'media_activity' => 'https://example.com/audio.mp3',
+            'media_activity' => null,
             'is_active' => 1,
         ];
 
