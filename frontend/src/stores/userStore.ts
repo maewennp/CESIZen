@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { userService } from '@/api/services/userService'
 import type { User } from '@/api/interfaces/User'
+import { useFavoritesStore } from './useFavoritesStore'
+import { useBreathingHistoryStore } from './useBreathingHistoryStore'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref<string | null>(localStorage.getItem('token'))
@@ -16,6 +18,9 @@ export const useUserStore = defineStore('user', () => {
       const response = await userService.getProfile(token.value)
       user.value = response.profile
       isAuthenticated.value = true
+      // Charger les favoris de l'utilisateur connecté
+      useFavoritesStore().loadFavorites()
+      useBreathingHistoryStore().loadSessions()
     } catch (err) {
       console.error('Erreur chargement profil', err)
       logout()

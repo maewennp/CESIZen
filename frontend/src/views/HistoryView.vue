@@ -11,20 +11,19 @@
       <v-divider />
       <v-card-text>
         <v-row>
-          <!-- Colonne gauche : liste ou texte vide -->
           <v-col>
             <v-list v-if="breathing.length">
               <v-list-item v-for="(item, i) in breathing" :key="i">
                 <v-list-item-content>
-                  <v-list-item-title>{{ item.date }}</v-list-item-title>
-                  <v-list-item-subtitle>Durée : {{ item.duration }} min</v-list-item-subtitle>
+                  <v-list-item-title>{{ formatDate(item.date) }}</v-list-item-title>
+                  <v-list-item-subtitle>Durée : {{ formatDuration(item.duration) }} min</v-list-item-subtitle>
+                  <v-list-item-subtitle>Exercice : {{ item.exercise }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
             <p v-else class="text-grey">Aucun exercice enregistré.</p>
           </v-col>
 
-          <!-- Colonne droite : bouton en bas à droite -->
           <v-col cols="auto" class="d-flex align-end justify-end">
             <v-btn icon @click="openDialog('breathing')" variant="text" color="error">
               <v-icon>mdi-delete</v-icon>
@@ -109,20 +108,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useBreathingHistoryStore } from '@/stores/useBreathingHistoryStore'
 
-const breathing = ref([
-  { date: '2025-04-30', duration: 5 },
-  { date: '2025-04-28', duration: 7 },
-])
+const breathingHistoryStore = useBreathingHistoryStore()
+
+// Liste réactive des sessions, la plus récente en premier
+const breathing = computed(() => breathingHistoryStore.sessions)
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr)
+  return date.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })
+}
+
+function formatDuration(duration: number) {
+  const min = Math.floor(duration / 60)
+  const sec = duration % 60
+  return `${min} min${sec > 0 ? ' ' + sec + ' s' : ''}`
+}
 
 const emotions = ref([
-  // { date: '2025-04-29', emotion: 'Serein' },
+  { date: '-', emotion: '-' },
   // { date: '2025-04-27', emotion: 'Fatigué' },
 ])
 
 const diagnostics = ref([
-  // { date: '2025-04-26', level: 'Modéré' },
+  { date: '-', level: '-' },
   // { date: '2025-04-20', level: 'Élevé' },
 ])
 
@@ -135,7 +146,7 @@ const openDialog = (section: typeof sectionToClear.value) => {
 }
 
 const clearSection = () => {
-  if (sectionToClear.value === 'breathing') breathing.value = []
+  if (sectionToClear.value === 'breathing') breathingHistoryStore.clearSessions()
   else if (sectionToClear.value === 'emotions') emotions.value = []
   else if (sectionToClear.value === 'diagnostics') diagnostics.value = []
 

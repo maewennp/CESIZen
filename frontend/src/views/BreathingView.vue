@@ -55,12 +55,16 @@ const instruction = ref('')
 const secondsLeft = ref(0)
 const currentCycle = ref(1)
 const currentScale = ref(1) // départ à taille moyenne
+import { useBreathingHistoryStore } from '@/stores/useBreathingHistoryStore'
+
+const breathingHistoryStore = useBreathingHistoryStore()
 
 let timer: any
 let animationTimer: any
 let phases: { label: string; time: number; type: 'inspire' | 'pause' | 'expire' }[] = []
 let step = 0
 let duration = 0
+let sessionStart: number
 
 const selectedExercise = ref('')
 
@@ -86,7 +90,13 @@ const startBreathing = () => {
   isRunning.value = true
   step = 0
   currentCycle.value = 1
+  sessionStart = Date.now()
   nextPhase()
+  // breathingHistoryStore.addSession({
+  //   date: new Date().toISOString(),
+  //   duration: timer.value, 
+  //   exercise: selectedExercise.value 
+  // })
 }
 
 const nextPhase = () => {
@@ -122,6 +132,17 @@ const stopBreathing = () => {
   secondsLeft.value = 0
   currentCycle.value = 1
   currentScale.value = 1
+
+  if (sessionStart) {
+    const durationSec = Math.round((Date.now() - sessionStart) / 1000)
+    breathingHistoryStore.addSession({
+      date: new Date().toISOString(),
+      duration: durationSec,
+      exercise: selectedExercise.value
+    })
+    sessionStart = 0
+  }
+  currentCycle.value = 1
 }
 
 // Anime progressivement le scale

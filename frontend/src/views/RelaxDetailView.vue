@@ -2,12 +2,19 @@
   <div class="relaxation-background">
   <v-container class="py-10 px-4">
     <DetailsCard
+      v-if="selectedItem"
+      :id="selectedItem.id"
       :title="selectedItem?.title"
       :description="selectedItem?.description"
       :image="selectedItem?.image"
       :showFavorite="true"
       @back="goBack"
     />
+
+    <v-alert v-else type="error" variant="tonal">
+      Activité de relaxation non trouvée
+    </v-alert>
+
   </v-container>
 </div>
 </template>
@@ -68,6 +75,7 @@ const selectedItem = ref<any>(null)
 onMounted(() => {
   const id = Number(route.params.id)
   selectedItem.value = contents.find((item) => item.id === id)
+  console.log('selectedItem:', selectedItem.value)
 })
 
 const goBack = () => {

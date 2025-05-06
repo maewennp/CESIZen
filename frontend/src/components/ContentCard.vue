@@ -24,7 +24,7 @@
       </span>
       
     </v-card-text>
-    <v-card-actions v-if="showFavorite" class="justify-end pt-0 pb-10 pr-9">
+    <v-card-actions v-if="showFavorite && userStore.isAuthenticated" class="justify-end pt-0 pb-10 pr-9">
       <v-icon
         @click.stop="toggleFavorite"
         :color="isFavorite ? 'red' : 'grey'"
@@ -41,6 +41,9 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, computed } from 'vue'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
 
 const favoritesStore = useFavoritesStore()
 

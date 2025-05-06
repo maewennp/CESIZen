@@ -3,7 +3,7 @@
     <v-row justify="center">
       <v-col cols="12" md="8">
         <v-card elevation="6" class="details-card">
-          <v-img :src="image" height="280" :cover="useCover" class="rounded-t" />
+          <v-img :src="imageSrc" height="280" :cover="useCover" class="rounded-t" />
 
           <v-card-text class="pa-6">
             <h1 class="text-h5 font-weight-bold mb-4 text-darkprimary">
@@ -21,13 +21,13 @@
             </v-btn>
 
             <v-icon
-              v-if="showFavorite"
-              @click.stop="toggleFavorite"
-              :color="isFavorite ? 'red' : 'grey'"
+              v-if="showFavorite && userStore.isAuthenticated"
+              @click.stop="favoritesStore.toggleFavorite(props.id)"
+              :color="favoritesStore.isFavorite(props.id) ? 'red' : 'grey'"
               size="24"
               class="cursor-pointer"
             >
-              {{ isFavorite ? 'mdi-heart' : 'mdi-heart-outline' }}
+              {{ favoritesStore.isFavorite(props.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
             </v-icon>
           </v-card-actions>
           
@@ -41,13 +41,22 @@
 import { computed, defineProps, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
+import { useUserStore } from '@/stores/userStore'
+import { useFavoritesStore } from '@/stores/useFavoritesStore'
 
 const router = useRouter()
+const userStore = useUserStore()
+const favoritesStore = useFavoritesStore()
 
 const props = defineProps({
+  id: { type: Number, required: true },
   title: String,
   description: String,
   image: String,
+  defaultImage: {
+    type: String,
+    default: '/assets/images/zen.jpg',
+  },
   showFavorite: {
     type: Boolean,
     default: false,
@@ -66,6 +75,9 @@ const goBack = () => {
 // pour afficher l'image en default (et non cover) quand on est en desktop
 const { mdAndUp } = useDisplay()
 const useCover = computed(() => !mdAndUp.value) 
+
+// Fallback dynamique
+const imageSrc = computed(() => props.image || props.defaultImage)
 </script>
 
 <style scoped>

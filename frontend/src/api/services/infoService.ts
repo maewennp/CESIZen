@@ -8,7 +8,9 @@ export const infoService = {
   },
 
   async getOne(id_content: number) {
-    const response = await apiClient.get(API_ENDPOINTS.INFO.GET_ONE + `?id_content=${id_content}`);
+    const response = await apiClient.get(API_ENDPOINTS.INFO.GET_ONE, {
+      params: { id_content }
+    });
     return response.data;
   },
 

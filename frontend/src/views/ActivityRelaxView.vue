@@ -1,7 +1,14 @@
 <template>
   <div class="relaxation-background">
-    <v-container class="py-10 px-4">
+    <v-container class="py-10 px-4 text-center">
       <h1 class="text-h4 text-center mb-8">Activités de relaxation</h1>
+
+      <p class="text-body-1 mb-6">
+        <strong>Prenez un moment pour vous détendre.</strong><br>
+          Cette section vous propose une sélection d’activités de relaxation conçues pour vous aider à relâcher la pression, apaiser votre esprit et recentrer vos émotions.
+          Explorez, filtrez selon vos envies, et ajoutez vos préférées à vos favoris pour y revenir facilement.
+      </p>
+
       <v-text-field
         v-model="search"
         label="Rechercher une activité..."

@@ -32,7 +32,7 @@
         <v-card-text class="px-4 py-4">
           <v-row align="center">
             <v-col cols="9">
-              <span class="text-body-1">❤️ {{ favoritesCount }} activités de relaxation</span>
+              <span class="text-body-1">{{ favoritesLabel }}</span>
             </v-col>
             <v-col cols="3" class="text-right">
               <v-btn variant="text" color="darkprimary" @click="goToFavorites">Voir</v-btn>
@@ -147,10 +147,12 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { userService } from '@/api/services/userService'
 import type { User } from '@/api/interfaces/User'
+import { useFavoritesStore } from '@/stores/useFavoritesStore'
 
 const router = useRouter()
 const userStore = useUserStore()
 const token = computed(() => userStore.token)
+const favoritesStore = useFavoritesStore()
 
 const handleLogout = () => {
   userStore.logout()
@@ -160,10 +162,17 @@ const handleLogout = () => {
 onMounted(async () => {
   if (!userStore.user && userStore.token) {
     await userStore.fetchUserProfile()
+    favoritesStore.loadFavorites()
   }
 })
 
-const favoritesCount = 18
+const favoritesCount = computed(() => favoritesStore.favoriteIds.length)
+
+const favoritesLabel = computed(() => {
+  const count = favoritesCount.value
+  return `❤️ ${count} activité${count > 1 ? 's' : ''} de relaxation`
+})
+
 const lastActivity = 'Exercice de respiration'
 
 const goToFavorites = () => {
