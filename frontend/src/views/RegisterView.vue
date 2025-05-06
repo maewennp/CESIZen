@@ -62,6 +62,9 @@
               :rules="[rules.terms]"
               class="mt-2"
             />
+            <div class="text-right mt-n3 mb-4 mr-1">
+                <v-btn to="/cgu" variant="plain" class="text-right mt-n3 mb-4 mr-1 text-decoration-underline">Voir CGU</v-btn>
+            </div>
 
             <v-btn
               type="submit"

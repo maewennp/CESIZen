@@ -157,11 +157,6 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-// const user = ref({
-//   username: '',
-//   email: '',
-// })
-
 onMounted(async () => {
   if (!userStore.user && userStore.token) {
     await userStore.fetchUserProfile()

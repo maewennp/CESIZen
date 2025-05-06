@@ -17,7 +17,7 @@
       />
 
       <!-- Texte explicatif en fonction du choix -->
-      <p v-if="selectedExercise" class="text-caption text-grey mb-6">
+      <p v-if="selectedExercise" class="text-caption text-black mb-6">
         {{ exerciseDescriptions[selectedExercise] }}
       </p>
 
@@ -38,7 +38,7 @@
         <p class="text-h5 mt-6 text-darkprimary font-weight-bold">
           {{ instruction }}
         </p>
-        <p class="text-subtitle-2 text-grey">
+        <p class="text-subtitle-2 text-black">
           Temps restant : {{ secondsLeft }}s · Cycle {{ currentCycle }} / 20
         </p>
       </div>
@@ -48,9 +48,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
-//const selectedExercise = ref('4-4-4')
-//const exerciseOptions = ['3-4-5', '4-4-4', '5-5-5']
 
 const isRunning = ref(false)
 const phase = ref<'inspire' | 'pause' | 'expire'>('inspire')

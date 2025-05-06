@@ -73,6 +73,11 @@ const router = createRouter({
       component: () => import('@/views/AdminDashboard.vue'),
       meta: { requiresAuth: true, requiresAdmin: true }
     },
+    {
+      path: '/cgu',
+      name: 'cgu',
+      component: () => import('../views/CGUView.vue'),
+    },
     
   ],
 })
