@@ -24,8 +24,6 @@
       label="Image (nom du fichier ou URL)"
       prepend-inner-icon="mdi-image"
       variant="outlined"
-      :rules="[rules.required]"
-      required
     />
 
     <v-checkbox

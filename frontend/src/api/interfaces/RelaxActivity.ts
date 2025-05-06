@@ -4,7 +4,7 @@ export interface RelaxActivity {
   content: string
   category: string
   type: string
-  media_activity?: string | null
+  media_activity?: string
   is_active?: boolean
   created_at?: string
 }

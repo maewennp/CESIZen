@@ -8,8 +8,10 @@ export const relaxActivityService = {
   },
 
   async getOne(id_activity: number) {
-    const response = await apiClient.get(API_ENDPOINTS.RELAX_ACTIVITY.GET_ONE + `?id_activity=${id_activity}`);
-    return response.data;
+    const response = await apiClient.get(
+      API_ENDPOINTS.RELAX_ACTIVITY.GET_ONE + `?id_activity=${id_activity}`
+    )
+    return response.data
   },
 
   async adminGetAll(token: string) {
