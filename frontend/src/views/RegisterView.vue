@@ -72,28 +72,33 @@
               block
               class="mt-4 text-white"
               size="large"
+              :loading="loading"
+              :disabled="loading"
             >
               S'inscrire
             </v-btn>
           </v-form>
+          <v-alert
+            v-if="successMessage"
+            type="success"
+            variant="tonal"
+            class="mt-4"
+          >
+            {{ successMessage }}
+          </v-alert>
+          <v-snackbar v-model="showSuccessSnackbar" color="green" timeout="2000" top>
+            Inscription réussie ! Redirection en cours...
+          </v-snackbar>
+          <v-alert
+            v-if="errorMessage"
+            type="error"
+            variant="tonal"
+            class="mt-4"
+          >
+            {{ errorMessage }}
+          </v-alert>
         </v-card>
       </v-container>
-      <v-alert
-        v-if="successMessage"
-        type="success"
-        variant="tonal"
-        class="mt-4"
-      >
-        {{ successMessage }}
-      </v-alert>
-      <v-alert
-        v-if="errorMessage"
-        type="error"
-        variant="tonal"
-        class="mt-4"
-      >
-        {{ errorMessage }}
-      </v-alert>
     </v-main>
   </v-app>
 </template>
@@ -115,6 +120,7 @@ const form = ref({
 const errorMessage = ref('')
 const loading = ref(false)
 const successMessage = ref('')
+const showSuccessSnackbar = ref(false)
 
 const rules = {
   required: (value: string) => !!value || 'Champ requis',
@@ -135,9 +141,10 @@ const submitForm = async () => {
     const response = await authService.register(username, email, password)
 
     successMessage.value = '🎉 Inscription réussie ! Redirection en cours...'
+    showSuccessSnackbar.value = true
     localStorage.setItem('token', response.token) 
     setTimeout(() => {
-      router.push('/')
+      router.push('/login')
     }, 2000) // pour laisser le temps de voir le message de succès
   } catch (err: any) {
     errorMessage.value = err.response?.data?.error || "Erreur lors de l'inscription"
@@ -145,6 +152,8 @@ const submitForm = async () => {
     loading.value = false
   }
 }
+
+
 </script>
 
 <style scoped>
