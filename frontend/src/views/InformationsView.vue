@@ -31,6 +31,7 @@
           class="d-flex justify-center"
         >
           <ContentCard
+            :id="item.id"
             :title="item.title"
             :description="item.description"
             :image="item.image"
@@ -49,27 +50,38 @@ import ContentCard from '@/components/ContentCard.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+interface InfoCard {
+  id: number
+  title: string
+  description: string
+  image: string
+} 
+
 const router = useRouter()
-const search = ref('')
+const search = ref<string>('')
 
 const infos = ref<Info[]>([])
-const loading = ref(false)
-const error = ref('')
+const loading = ref<boolean>(false)
+const error = ref<string>('')
 
 onMounted(async () => {
   loading.value = true
   try {
     infos.value = await infoService.getAllVisible()
-  } catch (e: any) {
-    error.value = e.message || 'Erreur lors du chargement des informations'
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      error.value = err.message
+    } else {
+      error.value = 'Erreur lors du chargement des informations'
+    }
   } finally {
     loading.value = false
   }
 })
 
 // Adaptation des données pour ContentCard
-const mappedContents = computed(() =>
-  infos.value.map(info => ({
+const mappedContents = computed<InfoCard[]>(() =>
+  infos.value.map((info) => ({
     id: info.id_content,
     title: info.content_label,
     description: info.body,
@@ -78,17 +90,17 @@ const mappedContents = computed(() =>
 )
 
 // Filtrage avec la recherche
-const filteredContents = computed(() => {
-  const keyword = search.value.toLowerCase().trim()
+const filteredContents = computed<InfoCard[]>(() => {
+  const keyword = search.value.trim().toLowerCase()
   if (!keyword) return mappedContents.value
 
-  return mappedContents.value.filter(item =>
+  return mappedContents.value.filter((item) =>
     item.title.toLowerCase().includes(keyword) ||
     item.description.toLowerCase().includes(keyword)
   )
-}) 
+})
 
-const goToDetails = (id: number) => {
+function goToDetails(id: number): void {
   router.push(`/info/${id}`)
 }
 

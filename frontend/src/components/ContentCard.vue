@@ -24,7 +24,7 @@
       </span>
       
     </v-card-text>
-    <v-card-actions v-if="showFavorite && userStore.isAuthenticated" class="justify-end pt-0 pb-10 pr-9">
+    <v-card-actions v-if="showFav" class="justify-end pt-0 pb-10 pr-9">
       <v-icon
         @click.stop="toggleFavorite"
         :color="isFavorite ? 'red' : 'grey'"
@@ -39,33 +39,46 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 import { useUserStore } from '@/stores/userStore'
 
-const userStore = useUserStore()
+// Définition de l’interface props
+interface Props {
+  id: number
+  title: string
+  description: string
+  image: string
+  showFavorite?: boolean
+}
 
-const favoritesStore = useFavoritesStore()
-
-const props = defineProps({
-  id: Number,
-  title: String,
-  description: String,
-  image: String,
-  showFavorite: Boolean,
+const props = withDefaults(defineProps<Props>(), {
+  showFavorite: false,
 })
 
-const emit = defineEmits(['click'])
+const emit = defineEmits<{
+  (e: 'click'): void
+}>()
 
+// accès aux stores (pinia, typés)
+const userStore = useUserStore()
+const favoritesStore = useFavoritesStore()
+
+// Computed pour savoir si c’est favori
 const isFavorite = computed(() =>
-  props.id !== undefined ? favoritesStore.isFavorite(props.id) : false
+  favoritesStore.isFavorite(props.id)
 )
 
-const handleClick = () => {
+// Computed pour gérer l’affichage du bouton
+const showFav = computed(() =>
+  props.showFavorite && userStore.isAuthenticated
+)
+
+function handleClick(): void {
   emit('click')
 }
 
-const toggleFavorite = () => {
+function toggleFavorite(): void {
   if (props.id !== undefined) {
     favoritesStore.toggleFavorite(props.id)
   }

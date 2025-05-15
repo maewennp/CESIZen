@@ -21,7 +21,7 @@
 
     <v-text-field
       v-model="localInfo.media_content"
-      label="Image (nom du fichier ou URL)"
+      label="Image"
       prepend-inner-icon="mdi-image"
       variant="outlined"
     />
@@ -40,25 +40,39 @@
 </template>
 
 <script setup lang="ts">
+import type { Info } from '@/api/interfaces/Info';
 import { ref, watch, defineProps, defineEmits } from 'vue'
 
+
+interface FormRef {
+  validate: () => boolean
+}
+
 const props = defineProps<{
-  modelValue: any
+  modelValue: Info
 }>()
 
-const emit = defineEmits(['submit', 'cancel'])
+// Déclaration des emits avec payload typé
+const emit = defineEmits<{
+  (e: 'submit', payload: Info): void
+  (e: 'cancel'): void
+}>()
 
-const formRef = ref()
+// Références réactives
+const formRef = ref<FormRef | null>(null)
 const formValid = ref(false)
 
-const localInfo = ref({ ...props.modelValue })
+// Copie locale pour l’édition
+const localInfo = ref<Info>({ ...props.modelValue })
 
 watch(() => props.modelValue, (newVal) => {
   localInfo.value = { ...newVal }
 })
 
+// Règles de validation
 const rules = {
-  required: (v: string) => !!v || 'Champ requis'
+  required: (v: unknown) =>
+    (!!v && String(v).trim().length > 0) || 'Champ requis'
 }
 
 const handleSubmit = () => {

@@ -15,19 +15,19 @@
           </v-card-text>
 
           <v-card-actions class="d-flex justify-space-between px-4">
-            <v-btn color="darkprimary" @click="goBack" variant="text">
+            <v-btn color="darkprimary" @click="emitBack" variant="text">
               <v-icon start>mdi-arrow-left</v-icon>
               Retour
             </v-btn>
 
             <v-icon
-              v-if="showFavorite && userStore.isAuthenticated"
-              @click.stop="favoritesStore.toggleFavorite(props.id)"
-              :color="favoritesStore.isFavorite(props.id) ? 'red' : 'grey'"
+              v-if="showFav"
+              @click.stop="toggleFavorite"
+              :color="isFavorite ? 'red' : 'grey'"
               size="24"
               class="cursor-pointer"
             >
-              {{ favoritesStore.isFavorite(props.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
+              {{  isFavorite ? 'mdi-heart' : 'mdi-heart-outline' }}
             </v-icon>
           </v-card-actions>
           
@@ -38,46 +38,64 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, ref } from 'vue'
+import { computed, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/userStore'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
 
-const router = useRouter()
-const userStore = useUserStore()
-const favoritesStore = useFavoritesStore()
+// Props typées
+interface Props {
+  id: number
+  title: string
+  description: string
+  image?: string
+  defaultImage: string    // toujours défini via withDefaults
+  showFavorite?: boolean   // toujours défini via withDefaults
+}
 
-const props = defineProps({
-  id: { type: Number, required: true },
-  title: String,
-  description: String,
-  image: String,
-  defaultImage: {
-    type: String,
-    default: '/assets/images/zen.jpg',
-  },
-  showFavorite: {
-    type: Boolean,
-    default: false,
-  }
+// Déclaration des props + valeurs par défaut
+const props = withDefaults(defineProps<Props>(), {
+  defaultImage: '/assets/images/zen.jpg',
+  showFavorite: false,
 })
 
-const isFavorite = ref(false)
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value
-}
+// Événement `back`
+const emit = defineEmits<{
+  (e: 'back'): void
+}>()
 
-const goBack = () => {
-  router.back()
-}
+// Stores Pinia typés
+const userStore      = useUserStore()
+const favoritesStore = useFavoritesStore()
+
+// Computed pour favoris + affichage du cœur
+const isFavorite = computed<boolean>(() =>
+  favoritesStore.isFavorite(props.id)
+)
+const showFav = computed<boolean>(() =>
+  Boolean(props.showFavorite) && userStore.isAuthenticated
+)
+
+const router = useRouter()
 
 // pour afficher l'image en default (et non cover) quand on est en desktop
 const { mdAndUp } = useDisplay()
-const useCover = computed(() => !mdAndUp.value) 
+const useCover = computed<boolean>(() => !mdAndUp.value)
 
 // Fallback dynamique
 const imageSrc = computed(() => props.image || props.defaultImage)
+// const imageSrc = computed<string>(() =>
+//   props.image ?? props.defaultImage ?? '/assets/images/zen.jpg'
+// )
+
+function emitBack(): void {
+  emit('back')
+}
+
+function toggleFavorite(): void {
+  favoritesStore.toggleFavorite(props.id)
+}
 </script>
 
 <style scoped>
