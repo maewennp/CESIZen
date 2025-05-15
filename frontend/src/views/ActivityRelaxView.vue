@@ -19,9 +19,12 @@
         clearable
       />
 
+      <!-- Loader -->
       <v-progress-circular v-if="loading" indeterminate color="primary" class="my-8" />
+      <!-- Erreur -->
       <v-alert v-if="error" type="error" dense class="mb-6">{{ error }}</v-alert>
 
+      <!-- Liste des cards d'activité de relaxation -->
       <v-row justify="center" align="center" dense>
         <v-col
           v-for="item in filteredContents"
@@ -52,26 +55,37 @@ import ContentCard from '@/components/ContentCard.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+interface ActivityCard {
+  id: number
+  title: string
+  description: string
+  image: string
+}
+
 const router = useRouter()
-const search = ref('')
+const search = ref<string>('')
 
 const activities = ref<RelaxActivity[]>([])
-const loading = ref(false)
-const error = ref('')
+const loading = ref<boolean>(false)
+const error = ref<string>('')
 
 onMounted(async () => {
   loading.value = true
   try {
     activities.value = await relaxActivityService.getAllActive()
-  } catch (e: any) {
-    error.value = e.message || 'Erreur lors du chargement des activités'
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      error.value = err.message
+    } else {
+      error.value = 'Erreur lors du chargement des activités'
+    }
   } finally {
     loading.value = false
   }
 })
 
 // Mapping pour ContentCard
-const mappedContents = computed(() =>
+const mappedContents = computed<ActivityCard[]>(() =>
   activities.value.map(act => ({
     id: act.id_activity,
     title: act.activity_label,
@@ -81,8 +95,8 @@ const mappedContents = computed(() =>
 )
 
 // Filtrage avec la recherche
-const filteredContents = computed(() => {
-  const keyword = search.value.toLowerCase().trim()
+const filteredContents = computed<ActivityCard[]>(() => {
+  const keyword = search.value.trim().toLowerCase()
   if (!keyword) return mappedContents.value
 
   return mappedContents.value.filter(item =>

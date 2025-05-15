@@ -1,12 +1,33 @@
 <template>
   <div class="relaxation-background">
   <v-container class="py-10 px-4">
+
+    <!-- Indicateur de chargement -->
+    <v-progress-circular
+      v-if="loading"
+      indeterminate
+      color="primary"
+      class="d-flex mx-auto"
+    />
+
+    <!-- Message d'erreur si besoin -->
+    <v-alert
+      v-else-if="error"
+      type="error"
+      variant="tonal"
+      class="mb-4"
+    >
+      {{ error }}
+    </v-alert>
+
+    <!-- Détail de l'activité -->
     <DetailsCard
-      v-if="selectedItem"
+      v-else-if="selectedItem"
       :id="selectedItem.id_activity"
-      :title="selectedItem?.activity_label"
-      :description="selectedItem?.content"
-      :image="selectedItem?.media_activity"
+      :title="selectedItem.activity_label"
+      :description="selectedItem.content"
+      :image="selectedItem.media_activity"
+      default-image="/assets/images/zen.jpg"
       :showFavorite="true"
       @back="goBack"
     />
@@ -30,36 +51,41 @@ const route = useRoute()
 const router = useRouter()
 
 const selectedItem = ref<RelaxActivity | null>(null)
-  const loading = ref(false)
-  const error = ref('')
+  const loading = ref<boolean>(false)
+  const error = ref<string>('')
 
-  onMounted(async () => {
-  const id = Number(route.params.id)
+onMounted(async () => {
+  // Lecture et validation de l'ID passé en param
+  const rawId = route.params.id
+  const id    = typeof rawId === 'string'
+    ? parseInt(rawId, 10)
+    : NaN
+
   if (isNaN(id)) {
     error.value = "Identifiant d'activité invalide."
     return
   }
+
   loading.value = true
   try {
+    // On récupère l'activité « brute »
     const data = await relaxActivityService.getOne(id)
-    if (!data || data.error) {
-      error.value = data?.error || "Activité non trouvée."
-      selectedItem.value = null
+    selectedItem.value = data
+  } catch (err: unknown) {
+    // Gestion d'erreur typée
+    if (err instanceof Error) {
+      error.value = err.message
     } else {
-      selectedItem.value = {
-        ...data,
-        image: data.media_activity ? data.media_activity : new URL('@/assets/images/zen.jpg', import.meta.url).href
-      }
+      error.value = "Erreur lors du chargement de l'activité."
     }
-  } catch (e) {
-    error.value = "Erreur lors du chargement de l'activité."
     selectedItem.value = null
   } finally {
     loading.value = false
   }
 })
 
-const goBack = () => {
+// Retour à la vue précédente
+function goBack(): void {
   router.back()
 }
 </script>

@@ -39,7 +39,6 @@
 
 <script setup lang="ts">
 import { computed, defineProps } from 'vue'
-import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/userStore'
 import { useFavoritesStore } from '@/stores/useFavoritesStore'
@@ -77,17 +76,12 @@ const showFav = computed<boolean>(() =>
   Boolean(props.showFavorite) && userStore.isAuthenticated
 )
 
-const router = useRouter()
-
 // pour afficher l'image en default (et non cover) quand on est en desktop
 const { mdAndUp } = useDisplay()
 const useCover = computed<boolean>(() => !mdAndUp.value)
 
 // Fallback dynamique
 const imageSrc = computed(() => props.image || props.defaultImage)
-// const imageSrc = computed<string>(() =>
-//   props.image ?? props.defaultImage ?? '/assets/images/zen.jpg'
-// )
 
 function emitBack(): void {
   emit('back')
